@@ -1,6 +1,10 @@
 <template>
   <div class="cn-table-body" @scroll="handleBodyScrollTop" ref="cnTableBody">
-    <div class="cn-table-body-phantom" ref="phantom"></div>
+    <div
+      class="cn-table-body-phantom"
+      ref="phantom"
+      :style="{ height: phantomHeight }"
+    ></div>
     <table :style="{ transform: transform }">
       <colgroup>
         <col v-for="(col, i) in columns" :key="i" :width="col.width || ''" />
@@ -61,6 +65,9 @@ export default {
         Math.min(this.end, this.dataSource.length),
       );
     },
+    phantomHeight: function() {
+      return this.dataSource.length * this.itemHeight + "px";
+    },
   },
   methods: {
     handleBodyScrollTop: _.throttle(
@@ -90,25 +97,19 @@ export default {
     setUpPositionNormal: function(scrollTop) {
       let start = Math.floor(scrollTop / this.itemHeight);
       let transform = start * this.itemHeight;
-
       this.start = start;
       this.end = start + this.visibleCount;
       this.transform = `translate3d(0,${transform}px,0)`;
     },
-    initListHeight: function() {
-      const tableBody = this.$refs["cnTableBody"];
-      const firstTR = tableBody.querySelector("tr:first-child");
-      const { height: containerHeight } = tableBody.getBoundingClientRect();
-      const { height: trHeight } = firstTR.getBoundingClientRect();
-      const phantom = this.$refs["phantom"];
-      this.itemHeight = trHeight;
-      this.visibleCount = Math.ceil(containerHeight / trHeight);
-      this.end = this.start + this.visibleCount;
-      phantom.style.height = this.dataSource * trHeight + "px";
-    },
   },
   mounted() {
-    this.initListHeight();
+    const tableBody = this.$refs["cnTableBody"];
+    const firstTR = tableBody.querySelector("tr:first-child");
+    const { height: containerHeight } = tableBody.getBoundingClientRect();
+    const { height: trHeight } = firstTR.getBoundingClientRect();
+    this.itemHeight = trHeight;
+    this.visibleCount = Math.ceil(containerHeight / trHeight);
+    this.end = this.start + this.visibleCount;
   },
 };
 </script>

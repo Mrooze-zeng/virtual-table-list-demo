@@ -252,7 +252,7 @@ export default {
         ...this.createDataSource(dataSource.length),
       ];
     },
-    createDataSource: function(index = 0, size = 10) {
+    createDataSource: function(index = 0, size = 100) {
       let dataSource = [];
       for (let i = 0; i < size; i++) {
         let item = defautlData[Math.floor(Math.random() * defautlData.length)];
