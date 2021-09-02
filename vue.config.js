@@ -1,3 +1,4 @@
 module.exports = {
-  publicPath: "/",
+  publicPath:
+    process.env.NODE_ENV === "production" ? "/virtual-table-list-demo/" : "/",
 };
