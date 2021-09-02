@@ -19,3 +19,4 @@ jobs:
           folder: dist # The folder the action should deploy.
           clean: true
           target-folder: dist
+          repository-name: virtual-table-list-demo
