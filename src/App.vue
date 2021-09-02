@@ -11,6 +11,7 @@
           :is="slotProps.column.slot.header"
           v-bind="slotProps"
           v-bind:data="dataSource"
+          v-bind:updateCol="updateCol"
           v-bind:updateRow="updateRow"
         ></component>
       </template>
@@ -18,8 +19,17 @@
         <component
           :is="slotProps.column.slot.body"
           v-bind:updateCol="updateCol"
+          v-bind:updateRow="updateRow"
           v-bind="slotProps"
         ></component>
+      </template>
+      <template v-slot:loading>
+        <div class="lds-ellipsis">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
       </template>
     </cn-table>
   </div>
@@ -244,13 +254,17 @@ export default {
     handleBoundaryTop: function() {
       console.log("reach top");
     },
-    handleBoundaryBottom: function() {
+    handleBoundaryBottom: function({ done = function() {} }) {
       console.log("reach bottom");
       const dataSource = this.dataSource;
-      this.dataSource = [
-        ...dataSource,
-        ...this.createDataSource(dataSource.length),
-      ];
+      const self = this;
+      setTimeout(function() {
+        self.dataSource = [
+          ...dataSource,
+          ...self.createDataSource(dataSource.length),
+        ];
+        done(1);
+      }, 1000);
     },
     createDataSource: function(index = 0, size = 100) {
       let dataSource = [];
@@ -275,5 +289,62 @@ export default {
 <style>
 #app {
   margin-top: 100px;
+}
+.lds-ellipsis {
+  display: inline-block;
+  position: relative;
+  width: 100px;
+  height: 25px;
+  left: 50%;
+  margin-left: -50px;
+}
+.lds-ellipsis div {
+  position: absolute;
+  top: 10px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: rgb(32, 76, 117);
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.lds-ellipsis div:nth-child(1) {
+  left: 8px;
+  animation: lds-ellipsis1 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(2) {
+  left: 8px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(3) {
+  left: 32px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(4) {
+  left: 56px;
+  animation: lds-ellipsis3 0.6s infinite;
+}
+@keyframes lds-ellipsis1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes lds-ellipsis3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+@keyframes lds-ellipsis2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(24px, 0);
+  }
 }
 </style>

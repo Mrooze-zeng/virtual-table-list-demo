@@ -42,6 +42,7 @@
         </template>
       </cn-table-body>
     </div>
+    <slot name="loading" v-if="isLoading"></slot>
   </div>
 </template>
 
@@ -49,8 +50,6 @@
 import CnTableHeader from "./cn-table-header.vue";
 import CnTableBody from "./cn-table-body.vue";
 import _ from "underscore";
-
-const LENGTH = 3;
 
 export default {
   name: "cn-table",
@@ -73,7 +72,9 @@ export default {
     },
   },
   data() {
-    return {};
+    return {
+      isLoading: false,
+    };
   },
   computed: {
     sortFixedColumns: function() {
@@ -116,7 +117,12 @@ export default {
             el.getBoundingClientRect().height,
         ) < 2
       ) {
-        this.$emit("boundaryBottom");
+        this.$emit("boundaryBottom", {
+          done: () => {
+            this.isLoading = false;
+          },
+        });
+        this.isLoading = true;
       }
     }, 50),
     handleBodyScrollLeft: _.throttle(
@@ -165,7 +171,6 @@ table th {
 .cn-table {
   width: 500px;
   height: 350px;
-  overflow: hidden;
   border: 1px solid #ccc;
   position: relative;
 }

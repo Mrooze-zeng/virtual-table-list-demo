@@ -30,6 +30,10 @@ export default {
       type: Function,
       default: function() {},
     },
+    updateCol: {
+      type: Function,
+      default: function() {},
+    },
   },
   data() {
     return {};

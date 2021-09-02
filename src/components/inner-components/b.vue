@@ -20,6 +20,10 @@ export default {
         return {};
       },
     },
+    updateRow: {
+      type: Function,
+      default: function() {},
+    },
     updateCol: {
       type: Function,
       default: function() {},
