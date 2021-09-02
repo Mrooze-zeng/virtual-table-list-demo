@@ -6,20 +6,18 @@
         <col v-for="(col, i) in columns" :key="i" :width="col.width || ''" />
       </colgroup>
       <tbody>
-        <template v-for="(row, i) in visibleData">
-          <tr :key="i">
-            <td v-for="col in columns" :key="col.name">
-              <template v-if="col.slot">
-                <slot name="body" :data="row" :column="col"></slot>
-              </template>
-              <template v-else>
-                <span>
-                  {{ row[col.key] }}
-                </span>
-              </template>
-            </td>
-          </tr>
-        </template>
+        <tr v-for="(row, i) in visibleData" :key="i">
+          <td v-for="col in columns" :key="col.name">
+            <template v-if="col.slot">
+              <slot name="body" v-bind:data="row" v-bind:column="col"></slot>
+            </template>
+            <template v-else>
+              <span>
+                {{ row[col.key] }}
+              </span>
+            </template>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -45,10 +43,6 @@ export default {
     onScroll: {
       type: Function,
       default: function() {},
-    },
-    dataSourceLength: {
-      type: Number,
-      default: 0,
     },
   },
   data() {
@@ -84,16 +78,14 @@ export default {
     setUpPositionWithBuf: function(scrollTop, bufSize) {
       let start = Math.floor(scrollTop / this.itemHeight);
       let transform = 0;
-      if (this.start != start) {
-        if (start >= bufSize) {
-          transform = this.itemHeight * (start - bufSize);
-          this.start = start - bufSize;
-        } else {
-          this.start = 0;
-        }
-        this.transform = `translate3d(0,${transform}px,0)`;
-        this.end = start + this.visibleCount + bufSize;
+      if (start >= bufSize) {
+        transform = this.itemHeight * (start - bufSize);
+        this.start = start - bufSize;
+      } else {
+        this.start = 0;
       }
+      this.transform = `translate3d(0,${transform}px,0)`;
+      this.end = start + this.visibleCount + bufSize;
     },
     setUpPositionNormal: function(scrollTop) {
       let start = Math.floor(scrollTop / this.itemHeight);
@@ -112,7 +104,7 @@ export default {
       this.itemHeight = trHeight;
       this.visibleCount = Math.ceil(containerHeight / trHeight);
       this.end = this.start + this.visibleCount;
-      phantom.style.height = this.dataSourceLength * trHeight + "px";
+      phantom.style.height = this.dataSource * trHeight + "px";
     },
   },
   mounted() {

@@ -10,11 +10,14 @@
         <component
           :is="slotProps.column.slot.header"
           v-bind="slotProps"
+          v-bind:data="dataSource"
+          v-bind:updateRow="updateRow"
         ></component>
       </template>
       <template v-slot:body="slotProps">
         <component
           :is="slotProps.column.slot.body"
+          v-bind:updateCol="updateCol"
           v-bind="slotProps"
         ></component>
       </template>
@@ -226,22 +229,37 @@ export default {
     };
   },
   methods: {
+    updateCol: function(col = {}) {
+      this.dataSource = this.dataSource.map((item) => {
+        if (item.id === col.id) {
+          return col;
+        }
+        return item;
+      });
+    },
+
+    updateRow: function(dataSource = []) {
+      this.dataSource = dataSource;
+    },
     handleBoundaryTop: function() {
       console.log("reach top");
     },
     handleBoundaryBottom: function() {
       console.log("reach bottom");
       const dataSource = this.dataSource;
-      this.dataSource = [...dataSource, this.createDataSource()];
+      this.dataSource = [
+        ...dataSource,
+        ...this.createDataSource(dataSource.length),
+      ];
     },
-    createDataSource: function(size = 100) {
+    createDataSource: function(index = 0, size = 10) {
       let dataSource = [];
       for (let i = 0; i < size; i++) {
         let item = defautlData[Math.floor(Math.random() * defautlData.length)];
         dataSource.push({
           ...item,
           ...{
-            id: i,
+            id: i + index,
           },
         });
       }

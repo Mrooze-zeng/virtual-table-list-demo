@@ -1,35 +1,36 @@
 <template>
-  <div>
-    <label>
-      <input
-        type="checkbox"
-        @change.prevent="handleClick"
-        :value="isChecked"
-        v-model="isChecked"
-      />
-      <span> {{ renderLabel() }} {{ isChecked }}</span>
-    </label>
-  </div>
+  <label>
+    <input
+      type="checkbox"
+      @change.prevent="handleClick"
+      :value="$attrs.data.checked"
+      :checked="$attrs.data.checked"
+    />
+    <span> {{ renderLabel() }} </span>
+  </label>
 </template>
 
 <script>
 export default {
   name: "hello",
-  data() {
-    return { isChecked: this.$attrs.data.checked };
-  },
-  watch: {
-    "$attrs.data": function({ checked }) {
-      this.isChecked = checked;
+  props: {
+    column: {
+      type: Object,
+      default: function() {
+        return {};
+      },
     },
+    updateCol: {
+      type: Function,
+      default: function() {},
+    },
+  },
+  data() {
+    return {};
   },
   methods: {
     handleClick: function(event) {
-      console.log(this.$attrs, "====", event.target.checked, this.isChecked);
-
-      this.isChecked = event.target.checked;
-
-      this.$attrs.updateCol({
+      this.updateCol({
         ...this.$attrs.data,
         ...{ checked: event.target.checked },
       });
@@ -39,7 +40,7 @@ export default {
     },
   },
   mounted() {
-    // console.log(this.$attrs, "------");
+    // console.log(this.data);
   },
 };
 </script>

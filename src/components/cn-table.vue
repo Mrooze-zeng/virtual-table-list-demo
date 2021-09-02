@@ -5,23 +5,19 @@
       ref="headerStaticTable"
       @scroll.prevent="handleBodyScrollLeft"
     >
-      <cn-table-header
-        :columns="sortFixedColumns"
-        :dataSource="dataSourceLocal"
-      >
+      <cn-table-header :columns="sortFixedColumns" :dataSource="dataSource">
         <template v-slot:header="slotProps">
-          <slot name="header" v-bind="slotProps" :updateRow="updateRow"> </slot>
+          <slot name="header" v-bind="slotProps"> </slot>
         </template>
       </cn-table-header>
       <cn-table-body
         :columns="sortFixedColumns"
-        :dataSource="dataSourceLocal"
-        :dataSourceLength="dataSource.length"
+        :dataSource="dataSource"
         :onScroll="handleTableScroll"
         ref="cnTableBody"
       >
         <template v-slot:body="slotProps">
-          <slot name="body" v-bind="slotProps" :updateCol="updateCol"> </slot>
+          <slot name="body" v-bind="slotProps"> </slot>
         </template>
       </cn-table-body>
     </div>
@@ -30,23 +26,19 @@
       ref="leftStaticTable"
       :style="{ width: staticWidth }"
     >
-      <cn-table-header
-        :columns="sortFixedColumns"
-        :dataSource="dataSourceLocal"
-      >
+      <cn-table-header :columns="sortFixedColumns" :dataSource="dataSource">
         <template v-slot:header="slotProps">
-          <slot name="header" v-bind="slotProps" :updateRow="updateRow"> </slot>
+          <slot name="header" v-bind="slotProps"> </slot>
         </template>
       </cn-table-header>
       <cn-table-body
         :columns="sortFixedColumns"
-        :dataSource="dataSourceLocal"
-        :dataSourceLength="dataSource.length"
+        :dataSource="dataSource"
         :onScroll="handleTableScroll"
         ref="fixedBody"
       >
         <template v-slot:body="slotProps">
-          <slot name="body" v-bind="slotProps" :updateCol="updateCol"> </slot>
+          <slot name="body" v-bind="slotProps"> </slot>
         </template>
       </cn-table-body>
     </div>
@@ -81,9 +73,7 @@ export default {
     },
   },
   data() {
-    return {
-      dataSourceLocal: this.dataSource,
-    };
+    return {};
   },
   computed: {
     sortFixedColumns: function() {
@@ -103,19 +93,6 @@ export default {
     },
   },
   methods: {
-    updateCol: function(col = {}) {
-      this.dataSourceLocal = this.dataSourceLocal.map((item) => {
-        if (item.id === col.id) {
-          return col;
-        }
-        return item;
-      });
-    },
-
-    updateRow: function(dataSource = []) {
-      this.dataSourceLocal = dataSource;
-    },
-
     handleTableScroll: _.throttle(function(offset = 0, el, itemHeight = 0) {
       const fixedBody = this.$refs["fixedBody"].$el;
       const cnTableBody = this.$refs["cnTableBody"].$el;
@@ -130,7 +107,7 @@ export default {
         this.$emit("boundaryTop");
       } else if (
         Math.floor(
-          itemHeight * this.dataSourceLocal.length -
+          itemHeight * this.dataSource.length -
             offset -
             el.getBoundingClientRect().height,
         ) < 2

@@ -7,7 +7,7 @@
       <tr>
         <th v-for="col in columns" :key="col.name">
           <template v-if="col.slot">
-            <slot name="header" :column="col" :data="dataSource"></slot>
+            <slot name="header" v-bind:column="col"></slot>
           </template>
           <template v-else>
             <span>{{ col.title }}</span>
@@ -32,11 +32,6 @@ export default {
       default: function() {
         return [];
       },
-    },
-  },
-  methods: {
-    handleClick(arg) {
-      console.log(arg);
     },
   },
   mounted() {
