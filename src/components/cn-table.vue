@@ -116,14 +116,28 @@ export default {
       this.dataSourceLocal = dataSource;
     },
 
-    handleTableScroll: _.throttle(function(offset = 0, el) {
+    handleTableScroll: _.throttle(function(offset = 0, el, itemHeight = 0) {
       const fixedBody = this.$refs["fixedBody"].$el;
       const cnTableBody = this.$refs["cnTableBody"].$el;
       const { height } = cnTableBody.getBoundingClientRect();
+      this.setBoundaryEmitter(offset, el, itemHeight);
       fixedBody.scrollTop = offset;
       cnTableBody.scrollTop = offset;
       fixedBody.style.height = height + "px";
     }),
+    setBoundaryEmitter: _.debounce(function(offset = 0, el, itemHeight) {
+      if (offset === 0) {
+        this.$emit("boundaryTop");
+      } else if (
+        Math.floor(
+          itemHeight * this.dataSourceLocal.length -
+            offset -
+            el.getBoundingClientRect().height,
+        ) < 2
+      ) {
+        this.$emit("boundaryBottom");
+      }
+    }, 50),
     handleBodyScrollLeft: _.throttle(
       function(event) {
         const dom = this.$refs["leftStaticTable"];

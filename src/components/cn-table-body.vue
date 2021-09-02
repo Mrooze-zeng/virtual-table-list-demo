@@ -1,9 +1,5 @@
 <template>
-  <div
-    class="cn-table-body"
-    @scroll.prevent="handleBodyScrollTop"
-    ref="cnTableBody"
-  >
+  <div class="cn-table-body" @scroll="handleBodyScrollTop" ref="cnTableBody">
     <div class="cn-table-body-phantom" ref="phantom"></div>
     <table :style="{ transform: transform }">
       <colgroup>
@@ -77,24 +73,19 @@ export default {
       function(event) {
         const scrollTop = event.target.scrollTop;
 
+        this.onScroll(scrollTop, event.target, this.itemHeight);
+
         let start = Math.floor(scrollTop / this.itemHeight);
-        let end = start + this.visibleCount * 3;
+        let end = start + this.visibleCount + 3;
 
-        this.start = start;
-        this.end = end;
+        let transform = start * this.itemHeight;
 
-        if (scrollTop <= 0) {
-          this.transform = `translate3d(0,${scrollTop}px,0)`;
-        } else if (end >= this.dataSource.length) {
-          this.transform = `translate3d(0,${scrollTop -
-            (scrollTop % this.itemHeight)}px,0)`;
-        } else {
-          this.transform = `translate3d(0,${scrollTop -
-            (scrollTop % this.itemHeight) -
-            this.visibleCount * this.itemHeight}px,0)`;
+        if (this.start != start) {
+          this.start = start;
+          this.end = end;
+
+          this.transform = `translate3d(0,${transform}px,0)`;
         }
-
-        this.onScroll(scrollTop, event.target);
       },
       0,
       { leading: true },
@@ -107,7 +98,7 @@ export default {
       const phantom = this.$refs["phantom"];
       this.itemHeight = trHeight;
       this.visibleCount = Math.ceil(containerHeight / trHeight);
-      this.end = this.start + this.visibleCount;
+      this.end = this.start + this.visibleCount + 3;
       phantom.style.height = this.dataSourceLength * trHeight + "px";
     },
   },
@@ -129,7 +120,7 @@ export default {
 .cn-table-body table {
   will-change: transform;
   transition: all 0s linear;
-  pointer-events: none;
+  /* pointer-events: none; */
   transform: translate3d(0, 0, 0);
 }
 .sticky-col {
