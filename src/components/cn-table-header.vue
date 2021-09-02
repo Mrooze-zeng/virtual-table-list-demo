@@ -6,12 +6,8 @@
     <thead>
       <tr>
         <th v-for="col in columns" :key="col.name">
-          <template v-if="col.slot">
-            <slot name="header" v-bind:column="col"></slot>
-          </template>
-          <template v-else>
-            <span>{{ col.title }}</span>
-          </template>
+          <slot v-if="col.slot" name="header" v-bind:column="col"></slot>
+          <span v-else>{{ col.title }}</span>
         </th>
       </tr>
     </thead>
@@ -22,12 +18,6 @@ export default {
   name: "cn-table-header",
   props: {
     columns: {
-      type: Array,
-      default: function() {
-        return [];
-      },
-    },
-    dataSource: {
       type: Array,
       default: function() {
         return [];

@@ -11,15 +11,16 @@
       </colgroup>
       <tbody>
         <tr v-for="(row, i) in visibleData" :key="i">
-          <td v-for="col in columns" :key="col.name">
-            <template v-if="col.slot">
-              <slot name="body" v-bind:data="row" v-bind:column="col"></slot>
-            </template>
-            <template v-else>
-              <span>
-                {{ row[col.key] }}
-              </span>
-            </template>
+          <td v-for="col in columns" :key="col.key">
+            <slot
+              v-if="col.slot"
+              name="body"
+              v-bind:data="row"
+              v-bind:column="col"
+            ></slot>
+            <span v-else>
+              {{ row[col.key] }}
+            </span>
           </td>
         </tr>
       </tbody>
@@ -80,7 +81,7 @@ export default {
         // this.setUpPositionNormal(scrollTop);
       },
       0,
-      { leading: true },
+      { trailing: true },
     ),
     setUpPositionWithBuf: function(scrollTop, bufSize) {
       let start = Math.floor(scrollTop / this.itemHeight);

@@ -5,7 +5,7 @@
       ref="headerStaticTable"
       @scroll.prevent="handleBodyScrollLeft"
     >
-      <cn-table-header :columns="sortFixedColumns" :dataSource="dataSource">
+      <cn-table-header :columns="sortFixedColumns">
         <template v-slot:header="slotProps">
           <slot name="header" v-bind="slotProps"> </slot>
         </template>
@@ -26,7 +26,7 @@
       ref="leftStaticTable"
       :style="{ width: staticWidth }"
     >
-      <cn-table-header :columns="sortFixedColumns" :dataSource="dataSource">
+      <cn-table-header :columns="sortFixedColumns">
         <template v-slot:header="slotProps">
           <slot name="header" v-bind="slotProps"> </slot>
         </template>
@@ -93,15 +93,19 @@ export default {
     },
   },
   methods: {
-    handleTableScroll: _.throttle(function(offset = 0, el, itemHeight = 0) {
-      const fixedBody = this.$refs["fixedBody"].$el;
-      const cnTableBody = this.$refs["cnTableBody"].$el;
-      const { height } = cnTableBody.getBoundingClientRect();
-      this.setBoundaryEmitter(offset, el, itemHeight);
-      fixedBody.scrollTop = offset;
-      cnTableBody.scrollTop = offset;
-      fixedBody.style.height = height + "px";
-    }),
+    handleTableScroll: _.throttle(
+      function(offset = 0, el, itemHeight = 0) {
+        const fixedBody = this.$refs["fixedBody"].$el;
+        const cnTableBody = this.$refs["cnTableBody"].$el;
+        const { height } = cnTableBody.getBoundingClientRect();
+        this.setBoundaryEmitter(offset, el, itemHeight);
+        fixedBody.scrollTop = offset;
+        cnTableBody.scrollTop = offset;
+        fixedBody.style.height = height + "px";
+      },
+      0,
+      { leading: true },
+    ),
     setBoundaryEmitter: _.debounce(function(offset = 0, el, itemHeight) {
       if (offset === 0) {
         this.$emit("boundaryTop");
