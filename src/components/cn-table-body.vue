@@ -63,7 +63,7 @@ export default {
   computed: {
     visibleData: function() {
       return this.dataSource.slice(
-        this.start,
+        Math.max(this.start, 0),
         Math.min(this.end, this.dataSource.length),
       );
     },
@@ -75,21 +75,34 @@ export default {
 
         this.onScroll(scrollTop, event.target, this.itemHeight);
 
-        let start = Math.floor(scrollTop / this.itemHeight);
-        let end = start + this.visibleCount + 3;
-
-        let transform = start * this.itemHeight;
-
-        if (this.start != start) {
-          this.start = start;
-          this.end = end;
-
-          this.transform = `translate3d(0,${transform}px,0)`;
-        }
+        this.setUpPositionWithBuf(scrollTop, this.visibleCount);
+        // this.setUpPositionNormal(scrollTop);
       },
       0,
       { leading: true },
     ),
+    setUpPositionWithBuf: function(scrollTop, bufSize) {
+      let start = Math.floor(scrollTop / this.itemHeight);
+      let transform = 0;
+      if (this.start != start) {
+        if (start >= bufSize) {
+          transform = this.itemHeight * (start - bufSize);
+          this.start = start - bufSize;
+        } else {
+          this.start = 0;
+        }
+        this.transform = `translate3d(0,${transform}px,0)`;
+        this.end = start + this.visibleCount + bufSize;
+      }
+    },
+    setUpPositionNormal: function(scrollTop) {
+      let start = Math.floor(scrollTop / this.itemHeight);
+      let transform = start * this.itemHeight;
+
+      this.start = start;
+      this.end = start + this.visibleCount;
+      this.transform = `translate3d(0,${transform}px,0)`;
+    },
     initListHeight: function() {
       const tableBody = this.$refs["cnTableBody"];
       const firstTR = tableBody.querySelector("tr:first-child");
@@ -98,7 +111,7 @@ export default {
       const phantom = this.$refs["phantom"];
       this.itemHeight = trHeight;
       this.visibleCount = Math.ceil(containerHeight / trHeight);
-      this.end = this.start + this.visibleCount + 3;
+      this.end = this.start + this.visibleCount;
       phantom.style.height = this.dataSourceLength * trHeight + "px";
     },
   },
