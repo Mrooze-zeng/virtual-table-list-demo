@@ -106,10 +106,16 @@ export default {
   mounted() {
     const tableBody = this.$refs["cnTableBody"];
     const firstTR = tableBody.querySelector("tr:first-child");
-    const { height: containerHeight } = tableBody.getBoundingClientRect();
+    const { top } = tableBody.getBoundingClientRect();
     const { height: trHeight } = firstTR.getBoundingClientRect();
+    const {
+      top: parentTop,
+      height: parentHeight,
+    } = this.$parent.$el.getBoundingClientRect();
+    const bodyHeight = parentHeight - top + parentTop;
+    tableBody.style.height = bodyHeight + "px";
     this.itemHeight = trHeight;
-    this.visibleCount = Math.ceil(containerHeight / trHeight);
+    this.visibleCount = Math.ceil(bodyHeight / trHeight);
     this.end = this.start + this.visibleCount;
   },
 };
