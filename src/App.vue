@@ -1,6 +1,7 @@
 <template>
-  <div id="app">
+  <div id="app" ref="app">
     <cn-table
+      ref="cnTable"
       :dataSource="dataSource"
       :columns="columns"
       @boundaryTop="handleBoundaryTop"
@@ -44,6 +45,7 @@
     <br />
     <div class="dispaly-box">
       <button @click="fetchData">fetch data</button>
+      <button @click="toggelFullscreen">fullscreen</button>
       <span>total:{{ dataSource.length }}</span>
     </div>
   </div>
@@ -51,6 +53,7 @@
 
 <script>
 import _ from "underscore";
+import screenfull from "screenfull";
 
 import CnTable from "./components/cn-table.vue";
 import CheckboxHeader from "./components/inner-components/checkbox-header.vue";
@@ -257,6 +260,12 @@ export default {
         self.isLoading = false;
       }, 1000);
       this.isLoading = true;
+    },
+    toggelFullscreen: function toggleFullScreen() {
+      const cnTable = this.$refs["cnTable"].$el;
+      if (screenfull.isEnabled) {
+        screenfull.toggle(cnTable);
+      }
     },
     createColumns: function() {
       this.columns = [

@@ -184,6 +184,7 @@ table th {
 .cn-table {
   /* border: 1px solid #ccc; */
   position: relative;
+  background: #fff;
 }
 .cn-table-fixed-header {
   height: 100%;
@@ -198,6 +199,16 @@ table th {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
+}
+
+@media all and (display-mode: fullscreen) {
+  .cn-table {
+    padding: 25px;
+    height: 100% !important;
+  }
+  .table-fixed-left {
+    display: none;
+  }
 }
 
 .table-fixed-left {

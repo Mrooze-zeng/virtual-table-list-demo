@@ -68,9 +68,6 @@ export default {
     phantomHeight: function() {
       return this.dataSource.length * this.itemHeight + "px";
     },
-    visibleCount: function() {
-      return Math.floor(this.bodyHeight / this.itemHeight);
-    },
   },
   methods: {
     handleBodyScrollTop: _.throttle(
@@ -114,19 +111,34 @@ export default {
       const { height } = firstTR.getBoundingClientRect();
       return height;
     },
+    initComp: function(isFullscreen = false) {
+      const tableBody = this.$refs["cnTableBody"];
+      const { top } = tableBody.getBoundingClientRect();
+      let {
+        top: parentTop,
+        height: parentHeight,
+      } = this.$parent.$el.getBoundingClientRect();
+      if (isFullscreen) {
+        parentHeight = window.innerHeight;
+      }
+      const bodyHeight = parentHeight - top + parentTop;
+      tableBody.style.height = bodyHeight + "px";
+      this.itemHeight = this.getTrHeight(tableBody);
+      this.bodyHeight = bodyHeight;
+      this.visibleCount = Math.floor(this.bodyHeight / this.itemHeight);
+      this.end = this.start + this.visibleCount * 2;
+    },
   },
   mounted() {
-    const tableBody = this.$refs["cnTableBody"];
-    const { top } = tableBody.getBoundingClientRect();
-    const {
-      top: parentTop,
-      height: parentHeight,
-    } = this.$parent.$el.getBoundingClientRect();
-    const bodyHeight = parentHeight - top + parentTop;
-    tableBody.style.height = bodyHeight + "px";
-    this.itemHeight = this.getTrHeight(tableBody);
-    this.bodyHeight = bodyHeight;
-    this.end = this.start + this.visibleCount * 2;
+    this.initComp();
+    window
+      .matchMedia("(display-mode: fullscreen)")
+      .addEventListener("change", ({ matches }) => {
+        setTimeout(() => {
+          this.initComp(matches);
+          this.$refs["cnTableBody"].scrollTop = 0;
+        }, 500);
+      });
   },
 };
 </script>
