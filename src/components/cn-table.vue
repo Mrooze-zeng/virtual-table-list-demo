@@ -10,6 +10,9 @@
       @scroll.prevent="handleBodyScrollLeft"
     >
       <cn-table-header :columns="sortFixedColumns">
+        <template v-slot:colcaption="slotProps">
+          <slot name="colcaption" v-bind="slotProps"> </slot>
+        </template>
         <template v-slot:header="slotProps">
           <slot name="header" v-bind="slotProps"> </slot>
         </template>
@@ -32,6 +35,9 @@
       :style="{ width: staticWidth }"
     >
       <cn-table-header :columns="sortFixedColumns">
+        <template v-slot:colcaption="slotProps">
+          <slot name="colcaption" v-bind="slotProps"> </slot>
+        </template>
         <template v-slot:header="slotProps">
           <slot name="header" v-bind="slotProps"> </slot>
         </template>
@@ -184,9 +190,9 @@ table th {
 }
 .cn-table-fixed-header {
   height: 100%;
-  /* width: calc(100vh - 100%); */
   position: relative;
   overflow-y: hidden;
+  border: 1px solid #e9e9e9;
 }
 
 .cn-table-data-empty {
@@ -198,7 +204,6 @@ table th {
 }
 
 .table-fixed-left {
-  border-right: 0;
   box-shadow: none;
   transition: box-shadow 0.3s ease;
   width: 100px;
@@ -208,6 +213,8 @@ table th {
   left: 0;
   overflow-x: hidden;
   background: #fff;
+  border: 1px solid #e9e9e9;
+  border-right: 0;
 }
 .table-fixed-left.table-fixed-left-scroll {
   box-shadow: 6px 0 6px -4px rgba(0, 0, 0, 0.2);

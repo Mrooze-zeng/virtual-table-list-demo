@@ -13,7 +13,7 @@
         <tr v-for="(row, i) in visibleData" :key="i">
           <td v-for="col in columns" :key="col.key">
             <slot
-              v-if="col.slot"
+              v-if="col.body"
               name="body"
               v-bind:data="row"
               v-bind:column="col"

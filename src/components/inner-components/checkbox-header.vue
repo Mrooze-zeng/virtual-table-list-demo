@@ -2,9 +2,9 @@
   <label>
     <input
       type="checkbox"
-      @change.prevent="handleClick"
-      :value="$attrs.data.checked"
-      :checked="$attrs.data.checked"
+      @change="handleClick"
+      :value="data.checked"
+      :checked="data.checked"
     />
     <span> {{ renderLabel() }} </span>
   </label>
@@ -12,8 +12,14 @@
 
 <script>
 export default {
-  name: "hello",
+  name: "checkbox-header",
   props: {
+    data: {
+      type: Array,
+      default: function() {
+        return [];
+      },
+    },
     column: {
       type: Object,
       default: function() {
@@ -34,17 +40,18 @@ export default {
   },
   methods: {
     handleClick: function(event) {
-      this.updateCol({
-        ...this.$attrs.data,
-        ...{ checked: event.target.checked },
-      });
+      const data = this.data;
+      this.updateRow(
+        data.map((item) => {
+          item.checked = event.target.checked;
+          return item;
+        }),
+      );
     },
     renderLabel: function() {
-      return this.$attrs.data.id;
+      return this.column.title;
     },
   },
-  mounted() {
-    // console.log(this.data);
-  },
+  mounted() {},
 };
 </script>

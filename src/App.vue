@@ -6,9 +6,16 @@
       @boundaryTop="handleBoundaryTop"
       @boundaryBottom="handleBoundaryBottom"
     >
+      <template v-slot:colcaption="slotProps">
+        <component
+          :is="slotProps.caption.slot"
+          v-bind="slotProps"
+          :action="handleCaptionAction"
+        ></component>
+      </template>
       <template v-slot:header="slotProps">
         <component
-          :is="slotProps.column.slot.header"
+          :is="slotProps.column.header.slot"
           v-bind="slotProps"
           v-bind:data="dataSource"
           v-bind:updateCol="updateCol"
@@ -17,7 +24,7 @@
       </template>
       <template v-slot:body="slotProps">
         <component
-          :is="slotProps.column.slot.body"
+          :is="slotProps.column.body.slot"
           v-bind:updateCol="updateCol"
           v-bind:updateRow="updateRow"
           v-bind="slotProps"
@@ -49,8 +56,11 @@
 import _ from "underscore";
 
 import CnTable from "./components/cn-table.vue";
-import AC from "./components/inner-components/a.vue";
-import AB from "./components/inner-components/b.vue";
+import CheckboxHeader from "./components/inner-components/checkbox-header.vue";
+import CheckboxBody from "./components/inner-components/checkbox-body.vue";
+import TextCaption from "./components/inner-components/text-caption.vue";
+import SearchCaption from "./components/inner-components/search-caption.vue";
+import FilterHeader from "./components/inner-components/filter-header.vue";
 
 const defautlData = [
   {
@@ -185,71 +195,16 @@ export default {
   name: "App",
   components: {
     CnTable,
-    AC,
-    AB,
+    CheckboxHeader,
+    CheckboxBody,
+    TextCaption,
+    SearchCaption,
+    FilterHeader,
   },
   data() {
     return {
       dataSource: [],
-      columns: [
-        {
-          title: "No.",
-          key: "id",
-          width: 100,
-          fixed: "left",
-          slot: {
-            header: "AC",
-            body: "AB",
-          },
-        },
-        {
-          title: "姓名",
-          key: "name",
-          fixed: "left",
-          width: 100,
-        },
-        {
-          title: "年龄",
-          key: "age",
-          width: 100,
-          caption: {
-            slot: true,
-            text: "Bonus Items",
-          },
-        },
-        {
-          title: "省份",
-          key: "province",
-          width: 100,
-        },
-        {
-          title: "市区",
-          key: "city",
-          width: 200,
-        },
-        {
-          title: "地址",
-          key: "address",
-          width: 200,
-        },
-        {
-          title: "邮编",
-          key: "zip",
-          width: 100,
-        },
-        {
-          title: "操作",
-          key: "action",
-          width: 100,
-          slot: {
-            header: "AC",
-            body: "AB",
-          },
-          action: function() {
-            console.log("action");
-          },
-        },
-      ],
+      columns: [],
       isLoading: false,
     };
   },
@@ -265,6 +220,9 @@ export default {
 
     updateRow: function(dataSource = []) {
       this.dataSource = dataSource;
+    },
+    handleCaptionAction: function(v, action = function() {}) {
+      action.call(this, v);
     },
     handleBoundaryTop: function() {
       console.log("reach top");
@@ -298,6 +256,84 @@ export default {
       }, 1000);
       this.isLoading = true;
     },
+    createColumns: function() {
+      this.columns = [
+        {
+          title: "No.",
+          key: "id",
+          width: 100,
+          fixed: "left",
+          header: {
+            slot: "CheckboxHeader",
+          },
+          body: {
+            slot: "CheckboxBody",
+          },
+        },
+        {
+          title: "姓名",
+          key: "name",
+          fixed: "left",
+          width: 150,
+          caption: {
+            slot: "SearchCaption",
+            action: function(v) {
+              const dataSource = this.createDataSource();
+              this.dataSource = dataSource.filter((i) => {
+                return i["name"].toUpperCase().includes(v.trim().toUpperCase());
+              });
+            },
+          },
+        },
+        {
+          title: "年龄",
+          key: "age",
+          width: 100,
+          header: {
+            slot: "FilterHeader",
+          },
+          caption: {
+            slot: "TextCaption",
+            text: "Bonus Items",
+          },
+        },
+        {
+          title: "省份",
+          key: "province",
+          width: 100,
+        },
+        {
+          title: "市区",
+          key: "city",
+          width: 200,
+        },
+        {
+          title: "地址",
+          key: "address",
+          width: 200,
+        },
+        {
+          title: "邮编",
+          key: "zip",
+          width: 100,
+        },
+        {
+          title: "操作",
+          key: "action",
+          width: 100,
+          header: {
+            slot: "CheckboxHeader",
+          },
+          body: {
+            slot: "CheckboxBody",
+          },
+        },
+      ];
+    },
+  },
+  mounted() {
+    this.createColumns();
+    this.fetchData();
   },
   created() {},
 };
