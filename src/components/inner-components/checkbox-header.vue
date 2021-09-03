@@ -26,11 +26,7 @@ export default {
         return {};
       },
     },
-    updateRow: {
-      type: Function,
-      default: function() {},
-    },
-    updateCol: {
+    action: {
       type: Function,
       default: function() {},
     },
@@ -41,11 +37,12 @@ export default {
   methods: {
     handleClick: function(event) {
       const data = this.data;
-      this.updateRow(
+      this.action(
         data.map((item) => {
           item.checked = event.target.checked;
           return item;
         }),
+        this.column.header.action,
       );
     },
     renderLabel: function() {

@@ -181,7 +181,6 @@ table td,
 table th {
   padding: 8px 16px;
   border: 1px solid #e9e9e9;
-  text-align: left;
 }
 
 .cn-table {

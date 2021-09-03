@@ -22,11 +22,7 @@ export default {
         return {};
       },
     },
-    updateRow: {
-      type: Function,
-      default: function() {},
-    },
-    updateCol: {
+    action: {
       type: Function,
       default: function() {},
     },
@@ -37,20 +33,20 @@ export default {
     },
     handleUp: function() {
       const data = this.data;
-
-      this.updateRow(
+      this.action(
         data.sort((a, b) => {
           return a[this.column.key] - b[this.column.key];
         }),
+        this.column.header.action,
       );
     },
     handleDown: function() {
       const data = this.data;
-
-      this.updateRow(
+      this.action(
         data.sort((a, b) => {
           return b[this.column.key] - a[this.column.key];
         }),
+        this.column.header.action,
       );
     },
   },

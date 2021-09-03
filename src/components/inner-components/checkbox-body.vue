@@ -20,11 +20,7 @@ export default {
         return {};
       },
     },
-    updateRow: {
-      type: Function,
-      default: function() {},
-    },
-    updateCol: {
+    action: {
       type: Function,
       default: function() {},
     },
@@ -34,10 +30,13 @@ export default {
   },
   methods: {
     handleClick: function(event) {
-      this.updateCol({
-        ...this.$attrs.data,
-        ...{ checked: event.target.checked },
-      });
+      this.action(
+        {
+          ...this.$attrs.data,
+          ...{ checked: event.target.checked },
+        },
+        this.column.body.action,
+      );
     },
     renderLabel: function() {
       return this.$attrs.data.id;

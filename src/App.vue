@@ -10,7 +10,7 @@
         <component
           :is="slotProps.caption.slot"
           v-bind="slotProps"
-          :action="handleCaptionAction"
+          :action="handleAction"
         ></component>
       </template>
       <template v-slot:header="slotProps">
@@ -18,15 +18,13 @@
           :is="slotProps.column.header.slot"
           v-bind="slotProps"
           v-bind:data="dataSource"
-          v-bind:updateCol="updateCol"
-          v-bind:updateRow="updateRow"
+          :action="handleAction"
         ></component>
       </template>
       <template v-slot:body="slotProps">
         <component
           :is="slotProps.column.body.slot"
-          v-bind:updateCol="updateCol"
-          v-bind:updateRow="updateRow"
+          :action="handleAction"
           v-bind="slotProps"
         ></component>
       </template>
@@ -61,6 +59,7 @@ import CheckboxBody from "./components/inner-components/checkbox-body.vue";
 import TextCaption from "./components/inner-components/text-caption.vue";
 import SearchCaption from "./components/inner-components/search-caption.vue";
 import FilterHeader from "./components/inner-components/filter-header.vue";
+import OperationBody from "./components/inner-components/operation-body.vue";
 
 const defautlData = [
   {
@@ -200,6 +199,7 @@ export default {
     TextCaption,
     SearchCaption,
     FilterHeader,
+    OperationBody,
   },
   data() {
     return {
@@ -221,7 +221,7 @@ export default {
     updateRow: function(dataSource = []) {
       this.dataSource = dataSource;
     },
-    handleCaptionAction: function(v, action = function() {}) {
+    handleAction: function(v, action = function() {}) {
       action.call(this, v);
     },
     handleBoundaryTop: function() {
@@ -229,7 +229,7 @@ export default {
     },
     handleBoundaryBottom: function() {
       console.log("reach bottom");
-      this.fetchData();
+      // this.fetchData();
     },
     createDataSource: function(index = 0, size = 100) {
       let dataSource = [];
@@ -265,9 +265,15 @@ export default {
           fixed: "left",
           header: {
             slot: "CheckboxHeader",
+            action: function(v) {
+              this.updateRow(v);
+            },
           },
           body: {
             slot: "CheckboxBody",
+            action: function(v) {
+              this.updateCol(v);
+            },
           },
         },
         {
@@ -291,6 +297,9 @@ export default {
           width: 100,
           header: {
             slot: "FilterHeader",
+            action: function(v) {
+              this.updateRow(v);
+            },
           },
           caption: {
             slot: "TextCaption",
@@ -320,12 +329,17 @@ export default {
         {
           title: "操作",
           key: "action",
-          width: 100,
-          header: {
-            slot: "CheckboxHeader",
-          },
+          width: 150,
           body: {
-            slot: "CheckboxBody",
+            slot: "OperationBody",
+            actions: {
+              update: function() {
+                console.log("update");
+              },
+              delete: function() {
+                console.log("delete");
+              },
+            },
           },
         },
       ];
