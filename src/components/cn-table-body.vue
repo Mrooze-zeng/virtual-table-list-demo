@@ -116,7 +116,7 @@ export default {
     tableBody.style.height = bodyHeight + "px";
     this.itemHeight = trHeight;
     this.visibleCount = Math.ceil(bodyHeight / trHeight);
-    this.end = this.start + this.visibleCount;
+    this.end = this.start + this.visibleCount * 2;
   },
 };
 </script>
