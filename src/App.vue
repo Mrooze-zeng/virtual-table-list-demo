@@ -230,14 +230,20 @@ export default {
       console.log("reach bottom");
       this.fetchData();
     },
-    createDataSource: function(index = 0, size = 100) {
+    createDataSource: function(size = 100) {
       let dataSource = [];
+      let step = Math.ceil(this.dataSource.length / 100);
       for (let i = 0; i < size; i++) {
         let item = defautlData[Math.floor(Math.random() * defautlData.length)];
         dataSource.push({
           ...item,
           ...{
-            id: i + index,
+            index: `${step}-${i}`,
+            id:
+              Date.now().toString(36) +
+              Math.random()
+                .toString(36)
+                .slice(2),
           },
         });
       }
@@ -247,10 +253,7 @@ export default {
       const dataSource = this.dataSource;
       const self = this;
       setTimeout(function() {
-        self.dataSource = [
-          ...dataSource,
-          ...self.createDataSource(dataSource.length),
-        ];
+        self.dataSource = [...dataSource, ...self.createDataSource()];
         self.isLoading = false;
       }, 1000);
       this.isLoading = true;
@@ -259,7 +262,7 @@ export default {
       this.columns = [
         {
           title: "No.",
-          key: "id",
+          key: "index",
           width: 100,
           fixed: "left",
           header: {

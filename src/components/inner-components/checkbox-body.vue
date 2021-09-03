@@ -36,7 +36,7 @@ export default {
       });
     },
     renderLabel: function() {
-      return this.$attrs.data.id;
+      return this.$attrs.data.index;
     },
   },
   mounted() {
