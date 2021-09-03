@@ -30,13 +30,10 @@ export default {
   },
   methods: {
     handleClick: function(event) {
-      this.action(
-        {
-          ...this.$attrs.data,
-          ...{ checked: event.target.checked },
-        },
-        this.column.body.action,
-      );
+      this.action(this.column.body.action, {
+        ...this.$attrs.data,
+        ...{ checked: event.target.checked },
+      });
     },
     renderLabel: function() {
       return this.$attrs.data.id;

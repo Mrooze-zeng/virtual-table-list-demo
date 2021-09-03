@@ -10,12 +10,6 @@
 export default {
   name: "filter-header",
   props: {
-    data: {
-      type: Array,
-      default: function() {
-        return [];
-      },
-    },
     column: {
       type: Object,
       default: function() {
@@ -32,14 +26,14 @@ export default {
       return this.column.title;
     },
     handleUp: function() {
-      this.action((a, b) => {
+      this.action(this.column.header.actions.up, (a, b) => {
         return a[this.column.key] - b[this.column.key];
-      }, this.column.header.actions.up);
+      });
     },
     handleDown: function() {
-      this.action((a, b) => {
+      this.action(this.column.header.actions.down, (a, b) => {
         return b[this.column.key] - a[this.column.key];
-      }, this.column.header.actions.down);
+      });
     },
   },
 };

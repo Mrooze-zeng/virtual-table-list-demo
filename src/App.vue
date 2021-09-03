@@ -17,7 +17,6 @@
         <component
           :is="slotProps.column.header.slot"
           v-bind="slotProps"
-          v-bind:data="dataSource"
           :action="handleAction"
         ></component>
       </template>
@@ -221,8 +220,8 @@ export default {
     updateRow: function(dataSource = []) {
       this.dataSource = dataSource;
     },
-    handleAction: function(v, action = function() {}) {
-      action.call(this, v);
+    handleAction: function(action = function() {}, ...v) {
+      return action.apply(this, v);
     },
     handleBoundaryTop: function() {
       console.log("reach top");
@@ -339,11 +338,13 @@ export default {
           body: {
             slot: "OperationBody",
             actions: {
-              update: function() {
+              update: function(v = {}) {
                 console.log("update");
               },
-              delete: function() {
-                console.log("delete");
+              delete: function(v = {}) {
+                const data = this.dataSource;
+                const i = data.findIndex((i) => i.id === v.id);
+                data.splice(i, 1);
               },
             },
           },
@@ -353,7 +354,7 @@ export default {
   },
   mounted() {
     this.createColumns();
-    this.fetchData();
+    // this.fetchData();
   },
   created() {},
 };

@@ -21,10 +21,10 @@ export default {
   },
   methods: {
     handleUpdate: function() {
-      this.action(this.$attrs.data, this.column.body.actions.update);
+      this.action(this.column.body.actions.update, this.$attrs.data);
     },
     handleDelete: function() {
-      this.action(this.$attrs.data, this.column.body.actions.delete);
+      this.action(this.column.body.actions.delete, this.$attrs.data);
     },
   },
 };

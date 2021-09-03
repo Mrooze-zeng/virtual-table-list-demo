@@ -1,11 +1,6 @@
 <template>
   <label>
-    <input
-      type="checkbox"
-      @change="handleClick"
-      :value="data.checked"
-      :checked="data.checked"
-    />
+    <input type="checkbox" @change="handleClick" />
     <span> {{ renderLabel() }} </span>
   </label>
 </template>
@@ -14,12 +9,6 @@
 export default {
   name: "checkbox-header",
   props: {
-    data: {
-      type: Array,
-      default: function() {
-        return [];
-      },
-    },
     column: {
       type: Object,
       default: function() {
@@ -36,11 +25,10 @@ export default {
   },
   methods: {
     handleClick: function(event) {
-      const data = this.data;
-      this.action((item) => {
+      this.action(this.column.header.action, (item) => {
         item.checked = event.target.checked;
         return item;
-      }, this.column.header.action);
+      });
     },
     renderLabel: function() {
       return this.column.title;
