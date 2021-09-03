@@ -232,7 +232,7 @@ export default {
     },
     createDataSource: function(size = 100) {
       let dataSource = [];
-      let step = Math.ceil(this.dataSource.length / 100);
+      let step = Math.ceil(this.dataSource.length / size);
       for (let i = 0; i < size; i++) {
         let item = defautlData[Math.floor(Math.random() * defautlData.length)];
         dataSource.push({

@@ -53,9 +53,8 @@ export default {
   data() {
     return {
       start: 0,
-      end: 1,
+      end: 2,
       itemHeight: 0,
-      visibleCount: 0,
       transform: "",
     };
   },
@@ -69,11 +68,19 @@ export default {
     phantomHeight: function() {
       return this.dataSource.length * this.itemHeight + "px";
     },
+    visibleCount: function() {
+      return Math.floor(this.bodyHeight / this.itemHeight);
+    },
   },
   methods: {
     handleBodyScrollTop: _.throttle(
       function(event) {
         const scrollTop = event.target.scrollTop;
+
+        this.itemHeight = Math.min(
+          this.itemHeight,
+          this.getTrHeight(event.target),
+        ); //修正高度
 
         this.onScroll(scrollTop, event.target, this.itemHeight);
 
@@ -102,20 +109,23 @@ export default {
       this.end = start + this.visibleCount;
       this.transform = `translate3d(0,${transform}px,0)`;
     },
+    getTrHeight: function(target) {
+      const firstTR = target.querySelector("tr:first-child");
+      const { height } = firstTR.getBoundingClientRect();
+      return height;
+    },
   },
   mounted() {
     const tableBody = this.$refs["cnTableBody"];
-    const firstTR = tableBody.querySelector("tr:first-child");
     const { top } = tableBody.getBoundingClientRect();
-    const { height: trHeight } = firstTR.getBoundingClientRect();
     const {
       top: parentTop,
       height: parentHeight,
     } = this.$parent.$el.getBoundingClientRect();
     const bodyHeight = parentHeight - top + parentTop;
     tableBody.style.height = bodyHeight + "px";
-    this.itemHeight = trHeight;
-    this.visibleCount = Math.ceil(bodyHeight / trHeight);
+    this.itemHeight = this.getTrHeight(tableBody);
+    this.bodyHeight = bodyHeight;
     this.end = this.start + this.visibleCount * 2;
   },
 };
