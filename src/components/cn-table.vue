@@ -162,18 +162,18 @@ export default {
       const header = this.$refs["cnTableHeader"].$el;
       let { height: headerHeight, top } = header.getBoundingClientRect();
       if (document.fullscreenElement) {
-        headerHeight += top;
+        headerHeight += top * 2;
       }
       let tableBodyHeight = height - headerHeight;
       if (this.dataSource.length) {
-        if (
-          itemHeight &&
-          this.dataSource.length * itemHeight < tableBodyHeight
-        ) {
-          this.tableBodyHeight = this.dataSource.length * itemHeight;
-        } else {
-          this.tableBodyHeight = tableBodyHeight;
-        }
+        // if (
+        //   itemHeight &&
+        //   this.dataSource.length * itemHeight < tableBodyHeight
+        // ) {
+        //   this.tableBodyHeight = this.dataSource.length * itemHeight;
+        // } else {
+        this.tableBodyHeight = tableBodyHeight;
+        // }
       }
     },
   },

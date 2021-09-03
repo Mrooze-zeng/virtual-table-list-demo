@@ -71,6 +71,10 @@ export default {
   },
   computed: {
     visibleData: function() {
+      if (this.visibleCount > this.dataSource.length) {
+        const dom = this.$refs["cnTableBody"];
+        dom.scrollTop = 0;
+      }
       return this.dataSource.slice(
         Math.max(this.start, 0),
         Math.min(this.end, this.dataSource.length),
@@ -123,24 +127,31 @@ export default {
       this.transform = `translate3d(0,${transform}px,0)`;
     },
     getTrHeight: function(target) {
-      const firstTR = target.querySelector("tr:first-child");
-      const { height } = firstTR.getBoundingClientRect();
-      return height;
+      let heights = [60];
+      const trs = target.querySelectorAll("tr:nth-child(-n+5)") || [];
+      trs.forEach((tr) => {
+        const { height } = tr.getBoundingClientRect();
+        heights.push(height);
+      });
+      return Math.min(...heights);
     },
     setUpComp: function(v) {
       const dom = this.$refs["cnTableBody"];
       this.itemHeight = this.getTrHeight(dom);
       this.visibleCount = Math.ceil(v / this.itemHeight);
       this.end = this.start + this.visibleCount * 2;
-      if (this.visibleCount > this.dataSource.length) {
-        dom.scrollTop = v;
-        this.TableBodyheight = Math.ceil(
-          this.dataSource.length * this.itemHeight,
-        );
-      } else {
-        this.TableBodyheight = v;
-        dom.scrollTop = 0;
-      }
+      this.TableBodyheight = v;
+      dom.scrollTop = 0;
+
+      // if (this.visibleCount > this.dataSource.length) {
+      //   dom.scrollTop = v;
+      //   // this.TableBodyheight = Math.ceil(
+      //   //   this.dataSource.length * this.itemHeight,
+      //   // );
+      // } else {
+      //   // this.TableBodyheight = v;
+      //   dom.scrollTop = 0;
+      // }
       console.log(v, this.visibleCount > this.dataSource.length);
     },
   },
@@ -168,9 +179,6 @@ export default {
   position: -webkit-sticky;
   left: 0;
 }
-:not(:root):fullscreen .cn-table-body-phantom {
-  height: calc(100% + 10px);
-}
 .cn-table-body-phantom {
   position: absolute;
   left: 0;
@@ -178,7 +186,7 @@ export default {
   right: 0;
   z-index: -1;
   width: 100%;
-  height: 100%;
+  height: calc(100% + 1px);
   visibility: hidden;
 }
 </style>
