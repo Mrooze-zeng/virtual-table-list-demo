@@ -119,11 +119,9 @@ export default {
       function(offset = 0, el, itemHeight = 0) {
         const fixedBody = this.$refs["fixedBody"].$el;
         const cnTableBody = this.$refs["cnTableBody"].$el;
-        const { height } = cnTableBody.getBoundingClientRect();
         this.setBoundaryEmitter(offset, el, itemHeight);
         fixedBody.scrollTop = offset;
         cnTableBody.scrollTop = offset;
-        fixedBody.style.height = height + "px";
       },
       0,
       { leading: true },

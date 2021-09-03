@@ -229,7 +229,7 @@ export default {
     },
     handleBoundaryBottom: function() {
       console.log("reach bottom");
-      // this.fetchData();
+      this.fetchData();
     },
     createDataSource: function(index = 0, size = 100) {
       let dataSource = [];
