@@ -1,5 +1,9 @@
 <template>
-  <div class="cn-table" ref="cnTable">
+  <div
+    class="cn-table"
+    :style="{ width: width + 'px', height: height + 'px' }"
+    ref="cnTable"
+  >
     <div
       class="cn-table-fixed-header"
       ref="headerStaticTable"
@@ -11,6 +15,7 @@
         </template>
       </cn-table-header>
       <cn-table-body
+        v-if="dataSource.length"
         :columns="sortFixedColumns"
         :dataSource="dataSource"
         :onScroll="handleTableScroll"
@@ -32,6 +37,7 @@
         </template>
       </cn-table-header>
       <cn-table-body
+        v-if="dataSource.length"
         :columns="sortFixedColumns"
         :dataSource="dataSource"
         :onScroll="handleTableScroll"
@@ -42,7 +48,10 @@
         </template>
       </cn-table-body>
     </div>
-    <slot name="loading" v-if="isLoading"></slot>
+    <slot name="loading"></slot>
+    <div v-if="!dataSource.length" class="cn-table-data-empty">
+      <slot name="empty"></slot>
+    </div>
   </div>
 </template>
 
@@ -70,11 +79,17 @@ export default {
         return [];
       },
     },
+    width: {
+      type: Number,
+      default: 500,
+    },
+    height: {
+      type: Number,
+      default: 300,
+    },
   },
   data() {
-    return {
-      isLoading: false,
-    };
+    return {};
   },
   computed: {
     sortFixedColumns: function() {
@@ -117,12 +132,7 @@ export default {
             el.getBoundingClientRect().height,
         ) < 2
       ) {
-        this.$emit("boundaryBottom", {
-          done: () => {
-            this.isLoading = false;
-          },
-        });
-        this.isLoading = true;
+        this.$emit("boundaryBottom");
       }
     }, 50),
     handleBodyScrollLeft: _.throttle(
@@ -150,7 +160,7 @@ table {
   border-spacing: 0;
   empty-cells: show;
   table-layout: fixed;
-  border: 1px solid #e9e9e9;
+  /* border: 1px solid #e9e9e9; */
 }
 table th {
   background: #f7f7f7;
@@ -169,9 +179,7 @@ table th {
 }
 
 .cn-table {
-  width: 500px;
-  height: 350px;
-  border: 1px solid #ccc;
+  /* border: 1px solid #ccc; */
   position: relative;
 }
 .cn-table-fixed-header {
@@ -179,6 +187,14 @@ table th {
   /* width: calc(100vh - 100%); */
   position: relative;
   overflow-y: hidden;
+}
+
+.cn-table-data-empty {
+  width: 100%;
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .table-fixed-left {

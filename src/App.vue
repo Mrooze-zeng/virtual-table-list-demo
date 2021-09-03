@@ -23,7 +23,7 @@
           v-bind="slotProps"
         ></component>
       </template>
-      <template v-slot:loading>
+      <template v-slot:loading v-if="isLoading">
         <div class="lds-ellipsis">
           <div></div>
           <div></div>
@@ -31,7 +31,17 @@
           <div></div>
         </div>
       </template>
+      <template v-slot:empty="slotProps">
+        <div v-bind="slotProps">
+          data empty
+        </div>
+      </template>
     </cn-table>
+    <br />
+    <div class="dispaly-box">
+      <button @click="fetchData">fetch data</button>
+      <span>total:{{ dataSource.length }}</span>
+    </div>
   </div>
 </template>
 
@@ -202,6 +212,10 @@ export default {
           title: "年龄",
           key: "age",
           width: 100,
+          caption: {
+            slot: true,
+            text: "Bonus Items",
+          },
         },
         {
           title: "省份",
@@ -236,6 +250,7 @@ export default {
           },
         },
       ],
+      isLoading: false,
     };
   },
   methods: {
@@ -254,17 +269,9 @@ export default {
     handleBoundaryTop: function() {
       console.log("reach top");
     },
-    handleBoundaryBottom: function({ done = function() {} }) {
+    handleBoundaryBottom: function() {
       console.log("reach bottom");
-      const dataSource = this.dataSource;
-      const self = this;
-      setTimeout(function() {
-        self.dataSource = [
-          ...dataSource,
-          ...self.createDataSource(dataSource.length),
-        ];
-        done(1);
-      }, 1000);
+      this.fetchData();
     },
     createDataSource: function(index = 0, size = 100) {
       let dataSource = [];
@@ -279,10 +286,20 @@ export default {
       }
       return dataSource;
     },
+    fetchData: function() {
+      const dataSource = this.dataSource;
+      const self = this;
+      setTimeout(function() {
+        self.dataSource = [
+          ...dataSource,
+          ...self.createDataSource(dataSource.length),
+        ];
+        self.isLoading = false;
+      }, 1000);
+      this.isLoading = true;
+    },
   },
-  created() {
-    this.dataSource = this.createDataSource();
-  },
+  created() {},
 };
 </script>
 
@@ -290,12 +307,19 @@ export default {
 #app {
   margin-top: 100px;
 }
+.dispaly-box {
+  width: 500px;
+  display: flex;
+  justify-content: space-between;
+}
 .lds-ellipsis {
   display: inline-block;
-  position: relative;
+  position: absolute;
   width: 100px;
   height: 25px;
   left: 50%;
+  top: 50%;
+  margin-top: calc(25px / -2);
   margin-left: -50px;
 }
 .lds-ellipsis div {
