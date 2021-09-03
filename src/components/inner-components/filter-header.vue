@@ -32,22 +32,14 @@ export default {
       return this.column.title;
     },
     handleUp: function() {
-      const data = this.data;
-      this.action(
-        data.sort((a, b) => {
-          return a[this.column.key] - b[this.column.key];
-        }),
-        this.column.header.action,
-      );
+      this.action((a, b) => {
+        return a[this.column.key] - b[this.column.key];
+      }, this.column.header.actions.up);
     },
     handleDown: function() {
-      const data = this.data;
-      this.action(
-        data.sort((a, b) => {
-          return b[this.column.key] - a[this.column.key];
-        }),
-        this.column.header.action,
-      );
+      this.action((a, b) => {
+        return b[this.column.key] - a[this.column.key];
+      }, this.column.header.actions.down);
     },
   },
 };

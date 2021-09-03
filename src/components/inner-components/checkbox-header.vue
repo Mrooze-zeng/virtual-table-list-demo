@@ -37,13 +37,10 @@ export default {
   methods: {
     handleClick: function(event) {
       const data = this.data;
-      this.action(
-        data.map((item) => {
-          item.checked = event.target.checked;
-          return item;
-        }),
-        this.column.header.action,
-      );
+      this.action((item) => {
+        item.checked = event.target.checked;
+        return item;
+      }, this.column.header.action);
     },
     renderLabel: function() {
       return this.column.title;

@@ -265,8 +265,9 @@ export default {
           fixed: "left",
           header: {
             slot: "CheckboxHeader",
-            action: function(v) {
-              this.updateRow(v);
+            action: function(done = function() {}) {
+              const data = this.dataSource;
+              this.updateRow(data.map(done));
             },
           },
           body: {
@@ -283,11 +284,9 @@ export default {
           width: 150,
           caption: {
             slot: "SearchCaption",
-            action: function(v) {
+            action: function(done = function() {}) {
               const dataSource = this.createDataSource();
-              this.dataSource = dataSource.filter((i) => {
-                return i["name"].toUpperCase().includes(v.trim().toUpperCase());
-              });
+              this.dataSource = dataSource.filter(done);
             },
           },
         },
@@ -297,8 +296,15 @@ export default {
           width: 100,
           header: {
             slot: "FilterHeader",
-            action: function(v) {
-              this.updateRow(v);
+            actions: {
+              up: function(done = function() {}) {
+                const data = this.dataSource;
+                this.updateRow(data.sort(done));
+              },
+              down: function(done = function() {}) {
+                const data = this.dataSource;
+                this.updateRow(data.sort(done));
+              },
             },
           },
           caption: {

@@ -26,7 +26,11 @@ export default {
   },
   methods: {
     handleSearch: function(e) {
-      this.action(e.target.value, this.caption.action);
+      this.action((i) => {
+        return i[this.namekey]
+          .toUpperCase()
+          .includes(e.target.value.trim().toUpperCase());
+      }, this.caption.action);
     },
   },
 };
