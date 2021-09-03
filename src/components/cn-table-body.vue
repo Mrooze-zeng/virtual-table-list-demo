@@ -1,9 +1,14 @@
 <template>
-  <div class="cn-table-body" @scroll="handleBodyScrollTop" ref="cnTableBody">
+  <div
+    class="cn-table-body"
+    @scroll="handleBodyScrollTop"
+    ref="cnTableBody"
+    :style="{ height: height + 'px' }"
+  >
     <div
       class="cn-table-body-phantom"
       ref="phantom"
-      :style="{ height: phantomHeight }"
+      :style="{ 'min-height': phantomHeight }"
     ></div>
     <table :style="{ transform: transform }">
       <colgroup>
@@ -33,6 +38,10 @@ import _ from "underscore";
 export default {
   name: "cn-table-body",
   props: {
+    height: {
+      type: Number,
+      default: 0,
+    },
     columns: {
       type: Array,
       default: function() {
@@ -56,6 +65,7 @@ export default {
       end: 2,
       itemHeight: 0,
       transform: "",
+      visibleCount: 2,
     };
   },
   computed: {
@@ -67,6 +77,11 @@ export default {
     },
     phantomHeight: function() {
       return this.dataSource.length * this.itemHeight + "px";
+    },
+  },
+  watch: {
+    height: function(v) {
+      this.setUpComp(v);
     },
   },
   methods: {
@@ -111,35 +126,19 @@ export default {
       const { height } = firstTR.getBoundingClientRect();
       return height;
     },
-    initComp: function(isFullscreen = false) {
-      const tableBody = this.$refs["cnTableBody"];
-      const { top } = tableBody.getBoundingClientRect();
-      let {
-        top: parentTop,
-        height: parentHeight,
-      } = this.$parent.$el.getBoundingClientRect();
-      if (isFullscreen) {
-        parentHeight = window.innerHeight;
-      }
-      const bodyHeight = parentHeight - top + parentTop;
-      tableBody.style.height = bodyHeight + "px";
-      this.itemHeight = this.getTrHeight(tableBody);
-      this.bodyHeight = bodyHeight;
-      this.visibleCount = Math.floor(this.bodyHeight / this.itemHeight);
+    setUpComp: function(v) {
+      const dom = this.$refs["cnTableBody"];
+      this.itemHeight = this.getTrHeight(dom);
+      this.visibleCount = Math.ceil(v / this.itemHeight);
       this.end = this.start + this.visibleCount * 2;
+      dom.scrollTop = 0;
+      if (this.visibleCount > this.dataSource.length) {
+        console.log("=========");
+        dom.scrollTop = v;
+      }
     },
   },
-  mounted() {
-    this.initComp();
-    window
-      .matchMedia("(display-mode: fullscreen)")
-      .addEventListener("change", ({ matches }) => {
-        setTimeout(() => {
-          this.initComp(matches);
-          this.$refs["cnTableBody"].scrollTop = 0;
-        }, 500);
-      });
-  },
+  mounted() {},
 };
 </script>
 
@@ -163,6 +162,9 @@ export default {
   position: -webkit-sticky;
   left: 0;
 }
+:not(:root):fullscreen .cn-table-body-phantom {
+  height: calc(100% + 10px);
+}
 .cn-table-body-phantom {
   position: absolute;
   left: 0;
@@ -170,6 +172,7 @@ export default {
   right: 0;
   z-index: -1;
   width: 100%;
+  height: 100%;
   visibility: hidden;
 }
 </style>

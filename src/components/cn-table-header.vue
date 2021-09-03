@@ -18,7 +18,11 @@
         </template>
       </tr>
       <tr>
-        <th v-for="col in columns" :key="col.key">
+        <th
+          v-for="col in columns"
+          :key="col.key"
+          :class="{ 'fixed-th': col.fixed }"
+        >
           <slot v-if="col.header" name="header" v-bind:column="col"></slot>
           <span v-else>{{ col.title }}</span>
         </th>

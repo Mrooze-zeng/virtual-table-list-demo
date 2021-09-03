@@ -9,7 +9,7 @@
       ref="headerStaticTable"
       @scroll.prevent="handleBodyScrollLeft"
     >
-      <cn-table-header :columns="sortFixedColumns">
+      <cn-table-header :columns="sortFixedColumns" ref="cnTableHeader">
         <template v-slot:colcaption="slotProps">
           <slot name="colcaption" v-bind="slotProps"> </slot>
         </template>
@@ -19,9 +19,11 @@
       </cn-table-header>
       <cn-table-body
         v-if="dataSource.length"
+        :height="tableBodyHeight"
         :columns="sortFixedColumns"
         :dataSource="dataSource"
         :onScroll="handleTableScroll"
+        @hook:mounted="calculateTableBodyHeight"
         ref="cnTableBody"
       >
         <template v-slot:body="slotProps">
@@ -29,11 +31,7 @@
         </template>
       </cn-table-body>
     </div>
-    <div
-      class="table-fixed-left"
-      ref="leftStaticTable"
-      :style="{ width: staticWidth }"
-    >
+    <div class="table-fixed-left" ref="leftStaticTable">
       <cn-table-header :columns="sortFixedColumns">
         <template v-slot:colcaption="slotProps">
           <slot name="colcaption" v-bind="slotProps"> </slot>
@@ -44,6 +42,7 @@
       </cn-table-header>
       <cn-table-body
         v-if="dataSource.length"
+        :height="tableBodyHeight"
         :columns="sortFixedColumns"
         :dataSource="dataSource"
         :onScroll="handleTableScroll"
@@ -95,7 +94,9 @@ export default {
     },
   },
   data() {
-    return {};
+    return {
+      tableBodyHeight: 0,
+    };
   },
   computed: {
     sortFixedColumns: function() {
@@ -103,15 +104,6 @@ export default {
       return columns
         .filter((col) => col.fixed)
         .concat(columns.filter((col) => !col.fixed));
-    },
-    staticWidth: function() {
-      let width = 0;
-      this.columns.forEach((col) => {
-        if (col.fixed) {
-          width += col.width;
-        }
-      });
-      return width + "px";
     },
   },
   methods: {
@@ -142,6 +134,7 @@ export default {
     handleBodyScrollLeft: _.throttle(
       function(event) {
         const dom = this.$refs["leftStaticTable"];
+        this.setStaticWidth(dom);
         if (event.target.scrollLeft) {
           dom.classList.add("table-fixed-left-scroll");
         } else {
@@ -151,8 +144,39 @@ export default {
       10,
       { leading: true },
     ),
+    setStaticWidth: _.debounce(
+      function(dom) {
+        let total = 0;
+        dom.querySelectorAll(".fixed-th").forEach((th) => {
+          const { width } = th.getBoundingClientRect();
+          total += width;
+        });
+        dom.style.width = Math.floor(total) + "px";
+      },
+      1000,
+      { trailing: true },
+    ),
+    calculateTableBodyHeight: function() {
+      const header = this.$refs["cnTableHeader"].$el;
+      const { height } = this.$el.getBoundingClientRect();
+      let { height: headerHeight, top } = header.getBoundingClientRect();
+      if (document.fullscreenElement) {
+        headerHeight += top;
+      }
+      if (this.dataSource.length) {
+        this.tableBodyHeight = height - headerHeight;
+      }
+    },
   },
-  mounted() {},
+  mounted() {
+    document.addEventListener("fullscreenchange", () => {
+      setTimeout(() => {
+        const dom = this.$refs["leftStaticTable"];
+        this.setStaticWidth(dom);
+        this.calculateTableBodyHeight();
+      }, 500);
+    });
+  },
 };
 </script>
 
@@ -201,20 +225,23 @@ table th {
   transform: translateY(-50%);
 }
 
-@media all and (display-mode: fullscreen) {
-  .cn-table {
-    padding: 25px;
-    height: 100% !important;
-  }
-  .table-fixed-left {
-    display: none;
-  }
+:not(:root):fullscreen.cn-table {
+  padding: 25px;
 }
-
+:not(:root):fullscreen .table-fixed-left {
+  height: calc(100vh - 50px);
+  overflow: hidden;
+  left: 25px;
+  top: 25px;
+}
+:not(:root):fullscreen .table-fixed-left table {
+  /* display: none; */
+  width: calc(100vw - 50px);
+}
 .table-fixed-left {
   box-shadow: none;
   transition: box-shadow 0.3s ease;
-  width: 100px;
+  width: 0;
   height: 100%;
   position: absolute;
   top: 0;
