@@ -129,6 +129,7 @@ export default {
         ) < 2
       ) {
         this.$emit("boundaryBottom");
+        this.calculateTableBodyHeight(itemHeight);
       }
     }, 50),
     handleBodyScrollLeft: _.throttle(
@@ -156,15 +157,23 @@ export default {
       1000,
       { trailing: true },
     ),
-    calculateTableBodyHeight: function() {
-      const header = this.$refs["cnTableHeader"].$el;
+    calculateTableBodyHeight: function(itemHeight = 0) {
       const { height } = this.$el.getBoundingClientRect();
+      const header = this.$refs["cnTableHeader"].$el;
       let { height: headerHeight, top } = header.getBoundingClientRect();
       if (document.fullscreenElement) {
         headerHeight += top;
       }
+      let tableBodyHeight = height - headerHeight;
       if (this.dataSource.length) {
-        this.tableBodyHeight = height - headerHeight;
+        if (
+          itemHeight &&
+          this.dataSource.length * itemHeight < tableBodyHeight
+        ) {
+          this.tableBodyHeight = this.dataSource.length * itemHeight;
+        } else {
+          this.tableBodyHeight = tableBodyHeight;
+        }
       }
     },
   },
@@ -242,7 +251,7 @@ table th {
   box-shadow: none;
   transition: box-shadow 0.3s ease;
   width: 0;
-  height: 100%;
+  /* height: 100%; */
   position: absolute;
   top: 0;
   left: 0;

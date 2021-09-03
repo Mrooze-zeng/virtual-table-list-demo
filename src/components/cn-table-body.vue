@@ -3,7 +3,7 @@
     class="cn-table-body"
     @scroll="handleBodyScrollTop"
     ref="cnTableBody"
-    :style="{ height: height + 'px' }"
+    :style="{ height: TableBodyheight + 'px' }"
   >
     <div
       class="cn-table-body-phantom"
@@ -66,6 +66,7 @@ export default {
       itemHeight: 0,
       transform: "",
       visibleCount: 2,
+      TableBodyheight: 0,
     };
   },
   computed: {
@@ -131,11 +132,16 @@ export default {
       this.itemHeight = this.getTrHeight(dom);
       this.visibleCount = Math.ceil(v / this.itemHeight);
       this.end = this.start + this.visibleCount * 2;
-      dom.scrollTop = 0;
       if (this.visibleCount > this.dataSource.length) {
-        console.log("=========");
         dom.scrollTop = v;
+        this.TableBodyheight = Math.ceil(
+          this.dataSource.length * this.itemHeight,
+        );
+      } else {
+        this.TableBodyheight = v;
+        dom.scrollTop = 0;
       }
+      console.log(v, this.visibleCount > this.dataSource.length);
     },
   },
   mounted() {},
