@@ -166,14 +166,7 @@ export default {
       }
       let tableBodyHeight = height - headerHeight;
       if (this.dataSource.length) {
-        // if (
-        //   itemHeight &&
-        //   this.dataSource.length * itemHeight < tableBodyHeight
-        // ) {
-        //   this.tableBodyHeight = this.dataSource.length * itemHeight;
-        // } else {
         this.tableBodyHeight = tableBodyHeight;
-        // }
       }
     },
   },
@@ -204,13 +197,13 @@ table th {
   color: #5c6b77;
   font-weight: 600;
   white-space: nowrap;
+  padding: 8px 16px;
 }
 table td {
   background: #fff;
 }
 table td,
 table th {
-  padding: 8px 16px;
   border: 1px solid #e9e9e9;
 }
 

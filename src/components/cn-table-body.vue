@@ -17,15 +17,17 @@
       <tbody>
         <tr v-for="(row, i) in visibleData" :key="i">
           <td v-for="col in columns" :key="col.key">
-            <slot
-              v-if="col.body"
-              name="body"
-              v-bind:data="row"
-              v-bind:column="col"
-            ></slot>
-            <span v-else>
-              {{ row[col.key] }}
-            </span>
+            <div class="td-container">
+              <slot
+                v-if="col.body"
+                name="body"
+                v-bind:data="row"
+                v-bind:column="col"
+              ></slot>
+              <span v-else>
+                {{ row[col.key] }}
+              </span>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -142,17 +144,6 @@ export default {
       this.end = this.start + this.visibleCount * 2;
       this.TableBodyheight = v;
       dom.scrollTop = 0;
-
-      // if (this.visibleCount > this.dataSource.length) {
-      //   dom.scrollTop = v;
-      //   // this.TableBodyheight = Math.ceil(
-      //   //   this.dataSource.length * this.itemHeight,
-      //   // );
-      // } else {
-      //   // this.TableBodyheight = v;
-      //   dom.scrollTop = 0;
-      // }
-      console.log(v, this.visibleCount > this.dataSource.length);
     },
   },
   mounted() {},
@@ -188,5 +179,14 @@ export default {
   width: 100%;
   height: calc(100% + 1px);
   visibility: hidden;
+}
+.td-container {
+  box-sizing: border-box;
+  padding: 8px 16px;
+  width: 100%;
+  height: 35px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>
