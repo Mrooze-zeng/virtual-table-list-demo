@@ -135,28 +135,32 @@ export default {
     handleBodyScrollLeft: _.throttle(
       function(event) {
         const dom = this.$refs["leftStaticTable"];
-        this.setStaticWidth(dom);
-        if (event.target.scrollLeft) {
-          dom.classList.add("table-fixed-left-scroll");
-        } else {
-          dom.classList.remove("table-fixed-left-scroll");
-        }
+        this.setStaticWidth(dom, function(dom, width) {
+          if (event.target.scrollLeft) {
+            dom.classList.add("table-fixed-left-scroll");
+            dom.style.width = Math.floor(width) + "px";
+          } else {
+            dom.classList.remove("table-fixed-left-scroll");
+            dom.style.width = 0 + "px";
+          }
+        });
       },
       10,
       { leading: true },
     ),
-    setStaticWidth: _.debounce(
-      function(dom) {
-        let total = 0;
-        dom.querySelectorAll(".fixed-th").forEach((th) => {
-          const { width } = th.getBoundingClientRect();
-          total += width;
-        });
+    setStaticWidth: function(
+      dom,
+      done = function(dom, total = 0) {
         dom.style.width = Math.floor(total) + "px";
       },
-      1000,
-      { trailing: true },
-    ),
+    ) {
+      let total = 0;
+      dom.querySelectorAll(".fixed-th").forEach((th) => {
+        const { width } = th.getBoundingClientRect();
+        total += width;
+      });
+      done(dom, total);
+    },
     calculateTableBodyHeight: function(itemHeight = 0) {
       const { height } = this.$el.getBoundingClientRect();
       const header = this.$refs["cnTableHeader"].$el;
