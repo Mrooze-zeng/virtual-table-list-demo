@@ -22,9 +22,10 @@
         :height="tableBodyHeight"
         :columns="sortFixedColumns"
         :dataSource="dataSource"
-        :onScroll="handleTableScroll"
+        @onScroll="handleTableScroll"
         @hook:mounted="calculateTableBodyHeight"
         ref="cnTableBody"
+        key="cnTableBody"
       >
         <template v-slot:body="slotProps">
           <slot name="body" v-bind="slotProps"> </slot>
@@ -45,8 +46,9 @@
         :height="tableBodyHeight"
         :columns="sortFixedColumns"
         :dataSource="dataSource"
-        :onScroll="handleTableScroll"
+        @onScroll="handleTableScroll"
         ref="fixedBody"
+        key="fixedBody"
       >
         <template v-slot:body="slotProps">
           <slot name="body" v-bind="slotProps"> </slot>
@@ -96,6 +98,7 @@ export default {
   data() {
     return {
       tableBodyHeight: 0,
+      trigger: null,
     };
   },
   computed: {
@@ -109,11 +112,11 @@ export default {
   methods: {
     handleTableScroll: _.throttle(
       function(offset = 0, el, itemHeight = 0) {
-        const fixedBody = this.$refs["fixedBody"].$el;
         const cnTableBody = this.$refs["cnTableBody"].$el;
+        const fixedBody = this.$refs["fixedBody"].$el;
         this.setBoundaryEmitter(offset, el, itemHeight);
-        fixedBody.scrollTop = offset;
         cnTableBody.scrollTop = offset;
+        fixedBody.scrollTop = offset;
       },
       0,
       { leading: true },
@@ -199,7 +202,6 @@ table th {
   color: #5c6b77;
   font-weight: 600;
   white-space: nowrap;
-  padding: 8px 16px;
 }
 table td {
   background: #fff;
@@ -207,6 +209,12 @@ table td {
 table td,
 table th {
   border: 1px solid #e9e9e9;
+}
+table th {
+  padding: 8px 16px;
+}
+table td {
+  /* padding: 8px 16px; */
 }
 
 .cn-table {

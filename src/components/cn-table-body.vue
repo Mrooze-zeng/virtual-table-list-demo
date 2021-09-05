@@ -10,12 +10,12 @@
       ref="phantom"
       :style="{ 'min-height': phantomHeight }"
     ></div>
-    <table :style="{ transform: transform }">
+    <table :style="{ transform: transform }" ref="tablebox">
       <colgroup>
         <col v-for="(col, i) in columns" :key="i" :width="col.width || ''" />
       </colgroup>
       <tbody>
-        <tr v-for="(row, i) in visibleData" :key="i">
+        <tr v-for="(row, i) in visibleData" :key="i" :id="row.id">
           <td v-for="col in columns" :key="col.key">
             <div class="td-container">
               <slot
@@ -69,6 +69,8 @@ export default {
       transform: "",
       visibleCount: 2,
       TableBodyheight: 0,
+      scrollTopCache: [],
+      scrollTop: 0,
     };
   },
   computed: {
@@ -83,7 +85,7 @@ export default {
       );
     },
     phantomHeight: function() {
-      return this.dataSource.length * this.itemHeight + "px";
+      return Math.ceil((this.dataSource.length / 2) * this.itemHeight) + "px";
     },
   },
   watch: {
@@ -101,20 +103,69 @@ export default {
           this.getTrHeight(event.target),
         ); //修正高度
 
-        this.onScroll(scrollTop, event.target, this.itemHeight);
+        this.$emit("onScroll", scrollTop, event.target, this.itemHeight);
+
+        // this.setUpPositionForUncertainRowHeight(scrollTop, event.target);
 
         this.setUpPositionWithBuf(scrollTop, this.visibleCount);
         // this.setUpPositionNormal(scrollTop);
       },
       0,
-      { trailing: true },
+      { leading: true },
     ),
+    setUpPositionForUncertainRowHeight: function(scrollTop, container) {
+      const first = container.querySelector("tr:first-child");
+      const last = container.querySelector("tr:last-child");
+      const {
+        top: containerTop,
+        bottom: containerBottom,
+      } = container.getBoundingClientRect();
+      const { height, bottom: firstBottom } = first.getBoundingClientRect();
+      const { top: lastTop, bottom: lastBottom } = last.getBoundingClientRect();
+
+      if (this.scrollTop < scrollTop) {
+        if (containerTop >= firstBottom) {
+          this.addCache({
+            scrollTop,
+            id: first.id,
+            start: this.start,
+            height,
+            transform: scrollTop,
+          });
+          this.setTransform(this.scrollTopCache, scrollTop);
+        }
+      } else if (this.scrollTop > scrollTop) {
+        if (containerBottom <= lastTop) {
+          this.setTransform(this.scrollTopCache, scrollTop, -1);
+        }
+      }
+      this.scrollTop = scrollTop;
+    },
+    setTransform: function(cache = [], scrollTop, extr = 1) {
+      const item = cache.find((i) => i.scrollTop >= scrollTop);
+      if (item) {
+        let transform = 0;
+        let start = Math.max(item.start + extr, 0);
+        cache.slice(0, start).forEach((c) => {
+          transform += c.height;
+        });
+        this.transform = `translate3d(0,${transform}px,0)`;
+        this.start = start;
+        this.end = this.start + this.visibleCount;
+      }
+    },
+    addCache: function(cache = {}) {
+      const index = this.scrollTopCache.findIndex((i) => i.id === cache.id);
+      if (index < 0) {
+        this.scrollTopCache.push(cache);
+      }
+    },
     setUpPositionWithBuf: function(scrollTop, bufSize) {
       let start = Math.floor(scrollTop / this.itemHeight);
       let transform = 0;
       if (start >= bufSize) {
-        transform = this.itemHeight * (start - bufSize);
         this.start = start - bufSize;
+        transform = this.itemHeight * (start - bufSize);
       } else {
         this.start = 0;
       }
@@ -140,8 +191,8 @@ export default {
     setUpComp: function(v) {
       const dom = this.$refs["cnTableBody"];
       this.itemHeight = this.getTrHeight(dom);
-      this.visibleCount = Math.ceil(v / this.itemHeight);
-      this.end = this.start + this.visibleCount * 2;
+      this.visibleCount = Math.max(Math.ceil(v / this.itemHeight), 10);
+      this.end = this.start + this.visibleCount;
       this.TableBodyheight = v;
       dom.scrollTop = 0;
     },
