@@ -134,32 +134,30 @@ export default {
     }, 50),
     handleBodyScrollLeft: _.throttle(
       function(event) {
-        const dom = this.$refs["leftStaticTable"];
-        this.setStaticWidth(dom, function(dom, width) {
-          if (event.target.scrollLeft) {
-            dom.classList.add("table-fixed-left-scroll");
-            dom.style.width = Math.floor(width) + "px";
-          } else {
-            dom.classList.remove("table-fixed-left-scroll");
-            dom.style.width = 0 + "px";
-          }
-        });
+        this.setStaticWidth(this.$refs["leftStaticTable"]);
       },
       10,
       { leading: true },
     ),
     setStaticWidth: function(
       dom,
-      done = function(dom, total = 0) {
-        dom.style.width = Math.floor(total) + "px";
+      done = function(dom, total = 0, scrollLeft = 0) {
+        if (scrollLeft) {
+          dom.classList.add("table-fixed-left-scroll");
+          dom.style.width = Math.floor(total) + "px";
+        } else {
+          dom.classList.remove("table-fixed-left-scroll");
+          dom.style.width = 0 + "px";
+        }
       },
     ) {
+      const headerStaticTable = this.$refs["headerStaticTable"];
       let total = 0;
       dom.querySelectorAll(".fixed-th").forEach((th) => {
         const { width } = th.getBoundingClientRect();
         total += width;
       });
-      done(dom, total);
+      done(dom, total, headerStaticTable.scrollLeft);
     },
     calculateTableBodyHeight: function(itemHeight = 0) {
       const { height } = this.$el.getBoundingClientRect();
