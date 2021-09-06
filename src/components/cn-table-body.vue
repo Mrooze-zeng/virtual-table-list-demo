@@ -136,6 +136,10 @@ export default {
       const { height, bottom: firstBottom } = first.getBoundingClientRect();
       const { top: lastTop } = last.getBoundingClientRect();
 
+      if (scrollTop <= 0) {
+        this.clearCache();
+      }
+
       if (this.scrollTop < scrollTop) {
         if (containerTop >= firstBottom) {
           this.addCache({
@@ -154,7 +158,7 @@ export default {
       }
       this.scrollTop = scrollTop;
     },
-    setTransform: function(cache = [], scrollTop, extr = 1) {
+    setTransform: function(cache = [], scrollTop = 0, extr = 1) {
       const item = cache.find((i) => i.scrollTop >= scrollTop);
       if (item) {
         let transform = 0;
@@ -171,6 +175,12 @@ export default {
       if (this.scrollTopCache.findIndex((i) => i.id === cache.id) < 0) {
         this.scrollTopCache.push(cache);
       }
+    },
+    clearCache: function() {
+      this.scrollTopCache = [];
+      this.start = 0;
+      this.end = this.start + this.visibleCount;
+      this.transform = "";
     },
     setUpPositionWithBuf: function(scrollTop, bufSize) {
       let start = Math.floor(scrollTop / this.itemHeight);

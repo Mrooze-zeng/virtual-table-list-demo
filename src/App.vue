@@ -125,7 +125,7 @@ export default {
     },
     handleBoundaryBottom: function() {
       console.log("reach bottom");
-      this.fetchData();
+      // this.fetchData();
     },
     createDataSource: function({ size = 100, isUseDefaultDataSource = false }) {
       let dataSource = [];
@@ -134,7 +134,7 @@ export default {
         if (isUseDefaultDataSource) {
           dataSource.push({
             ...defaultDataSource[
-              Math.ceil(Math.random() * defaultDataSource.length)
+              Math.ceil(Math.random() * defaultDataSource.length - 1)
             ],
             index: `${step}-${i}`,
             id: faker.datatype.uuid(),
