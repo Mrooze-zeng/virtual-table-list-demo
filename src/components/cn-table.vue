@@ -22,7 +22,7 @@
         :height="tableBodyHeight"
         :columns="sortFixedColumns"
         :dataSource="dataSource"
-        :onScroll="handleTableScroll"
+        @onScroll="handleTableScroll"
         @hook:mounted="calculateTableBodyHeight"
         ref="cnTableBody"
       >
@@ -45,7 +45,7 @@
         :height="tableBodyHeight"
         :columns="sortFixedColumns"
         :dataSource="dataSource"
-        :onScroll="handleTableScroll"
+        @onScroll="handleTableScroll"
         ref="fixedBody"
       >
         <template v-slot:body="slotProps">
@@ -107,28 +107,32 @@ export default {
     },
   },
   methods: {
-    handleTableScroll: function(offset = 0, el, itemHeight = 0) {
+    handleTableScroll: function(
+      offset = 0,
+      itemHeight = 0,
+      isOnBottom = false,
+      isOnTop = false,
+    ) {
       const fixedBody = this.$refs["fixedBody"].$el;
       const cnTableBody = this.$refs["cnTableBody"].$el;
-      this.setBoundaryEmitter(offset, el, itemHeight);
+      this.setBoundaryEmitter(itemHeight, isOnBottom, isOnTop);
       fixedBody.scrollTop = offset;
       cnTableBody.scrollTop = offset;
     },
 
-    setBoundaryEmitter: _.debounce(function(offset = 0, el, itemHeight) {
-      if (offset === 0) {
+    setBoundaryEmitter: _.debounce(function(
+      itemHeight = 0,
+      isOnBottom = false,
+      isOnTop = false,
+    ) {
+      if (isOnTop) {
         this.$emit("boundaryTop");
-      } else if (
-        Math.floor(
-          itemHeight * this.dataSource.length -
-            offset -
-            el.getBoundingClientRect().height,
-        ) < 2
-      ) {
+      } else if (isOnBottom) {
         this.$emit("boundaryBottom");
         this.calculateTableBodyHeight(itemHeight);
       }
-    }, 50),
+    },
+    50),
     handleBodyScrollLeft: _.throttle(
       function(event) {
         this.setStaticWidth(this.$refs["leftStaticTable"]);
@@ -196,7 +200,6 @@ table th {
   color: #5c6b77;
   font-weight: 600;
   white-space: nowrap;
-  padding: 8px 16px;
 }
 table td {
   background: #fff;
@@ -204,6 +207,12 @@ table td {
 table td,
 table th {
   border: 1px solid #e9e9e9;
+}
+table th {
+  padding: 8px 16px;
+}
+table td {
+  padding: 8px 16px;
 }
 
 .cn-table {

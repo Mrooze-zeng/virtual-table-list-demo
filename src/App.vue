@@ -64,6 +64,28 @@ import SearchCaption from "./components/inner-components/search-caption.vue";
 import FilterHeader from "./components/inner-components/filter-header.vue";
 import OperationBody from "./components/inner-components/operation-body.vue";
 
+const defaultDataSource = [
+  {
+    id: 0,
+    province: "C",
+    city: "S",
+    name: "O",
+    zip: "6",
+    age: 6,
+    address: "4",
+  },
+  {
+    id: 1,
+    province: "Ohio",
+    city:
+      "Lake Sydnee Lake Sydnee Lake Sydnee Lake Sydnee Lake Sydnee Lake Sydnee Lake Sydnee Lake Sydnee Lake Sydnee Lake Sydnee ",
+    name: "Kieran Thompson",
+    zip: "03930",
+    age: 234,
+    address: "674 Stanton Locks",
+  },
+];
+
 export default {
   name: "App",
   components: {
@@ -105,20 +127,30 @@ export default {
       console.log("reach bottom");
       this.fetchData();
     },
-    createDataSource: function(size = 100) {
+    createDataSource: function({ size = 100, isUseDefaultDataSource = false }) {
       let dataSource = [];
       let step = Math.ceil(this.dataSource.length / size);
       for (let i = 0; i < size; i++) {
-        dataSource.push({
-          index: `${step}-${i}`,
-          id: faker.datatype.uuid(),
-          province: faker.address.state(),
-          city: faker.address.city(),
-          name: faker.name.findName(),
-          zip: faker.address.zipCode(),
-          age: faker.datatype.number(100),
-          address: faker.address.streetAddress(),
-        });
+        if (isUseDefaultDataSource) {
+          dataSource.push({
+            ...defaultDataSource[
+              Math.ceil(Math.random() * defaultDataSource.length)
+            ],
+            index: `${step}-${i}`,
+            id: faker.datatype.uuid(),
+          });
+        } else {
+          dataSource.push({
+            index: `${step}-${i}`,
+            id: faker.datatype.uuid(),
+            province: faker.address.state(),
+            city: faker.address.city(),
+            name: faker.name.findName(),
+            zip: faker.address.zipCode(),
+            age: faker.datatype.number(100),
+            address: faker.address.streetAddress(),
+          });
+        }
       }
       return dataSource;
     },
@@ -126,7 +158,10 @@ export default {
       const dataSource = this.dataSource;
       const self = this;
       setTimeout(function() {
-        self.dataSource = [...dataSource, ...self.createDataSource()];
+        self.dataSource = [
+          ...dataSource,
+          ...self.createDataSource({ isUseDefaultDataSource: true }),
+        ];
         self.isLoading = false;
       }, 1000);
       this.isLoading = true;
@@ -236,7 +271,7 @@ export default {
   },
   mounted() {
     this.createColumns();
-    // this.fetchData();
+    this.fetchData();
   },
   created() {},
 };
