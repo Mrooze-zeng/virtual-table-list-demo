@@ -24,6 +24,7 @@
         :dataSource="dataSource"
         @onScroll="handleTableScroll"
         @hook:mounted="calculateTableBodyHeight"
+        target="fixedBody"
         ref="cnTableBody"
       >
         <template v-slot:body="slotProps">
@@ -46,6 +47,7 @@
         :columns="sortFixedColumns"
         :dataSource="dataSource"
         @onScroll="handleTableScroll"
+        target="cnTableBody"
         ref="fixedBody"
       >
         <template v-slot:body="slotProps">
@@ -107,20 +109,7 @@ export default {
     },
   },
   methods: {
-    handleTableScroll: function(
-      offset = 0,
-      itemHeight = 0,
-      isOnBottom = false,
-      isOnTop = false,
-    ) {
-      const fixedBody = this.$refs["fixedBody"].$el;
-      const cnTableBody = this.$refs["cnTableBody"].$el;
-      this.setBoundaryEmitter(itemHeight, isOnBottom, isOnTop);
-      fixedBody.scrollTop = offset;
-      cnTableBody.scrollTop = offset;
-    },
-
-    setBoundaryEmitter: _.debounce(function(
+    handleTableScroll: _.debounce(function(
       itemHeight = 0,
       isOnBottom = false,
       isOnTop = false,

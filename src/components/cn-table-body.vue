@@ -1,14 +1,17 @@
 <template>
   <div
     class="cn-table-body"
+    :data-sign="_uid"
     @scroll="handleBodyScrollTop"
+    @mouseenter="setCurrentTarget"
+    @mouseleave="setCurrentTarget"
     ref="cnTableBody"
     :style="{ height: TableBodyheight + 'px' }"
   >
     <div
       class="cn-table-body-phantom"
       ref="phantom"
-      :style="{ height: phantomHeight }"
+      :style="{ 'min-height': phantomHeight + 'px' }"
     ></div>
     <table :style="{ transform: transform }" ref="tablebox">
       <colgroup>
@@ -60,6 +63,14 @@ export default {
       type: Function,
       default: function() {},
     },
+    currentSign: {
+      type: String,
+      default: "",
+    },
+    target: {
+      type: String,
+      default: "",
+    },
   },
   data() {
     return {
@@ -71,6 +82,7 @@ export default {
       TableBodyheight: 0,
       scrollTopCache: [],
       scrollTop: 0,
+      sign: "",
     };
   },
   computed: {
@@ -85,7 +97,7 @@ export default {
       );
     },
     phantomHeight: function() {
-      return Math.ceil(this.dataSource.length * this.itemHeight) + "px";
+      return Math.ceil(this.visibleCount * this.itemHeight);
     },
   },
   watch: {
@@ -103,20 +115,7 @@ export default {
           this.getTrHeight(event.target),
         ); //修正高度
 
-        const tablebox = this.$refs["tablebox"];
-        const { top, bottom } = event.target.getBoundingClientRect();
-        const {
-          bottom: tableBottom,
-          top: tableTop,
-        } = tablebox.getBoundingClientRect();
-
-        this.$emit(
-          "onScroll",
-          scrollTop,
-          this.itemHeight,
-          tableBottom - bottom === 0,
-          tableTop - top === 0,
-        );
+        this.syncScroll(scrollTop);
 
         this.setUpPositionForUncertainRowHeight(scrollTop, event.target);
 
@@ -126,6 +125,33 @@ export default {
       0,
       { leading: true },
     ),
+    setCurrentTarget: function(event) {
+      if (event.type === "mouseenter") {
+        this.sign = event.target.dataset.sign;
+      } else {
+        this.sign = "";
+      }
+    },
+    syncScroll: function(scrollTop = 0) {
+      const target = this.$parent.$refs[this.target] || {};
+      const tablebox = this.$refs["tablebox"];
+      const container = this.$refs["cnTableBody"];
+      const { top, bottom } = container.getBoundingClientRect();
+      const {
+        bottom: tableBottom,
+        top: tableTop,
+      } = tablebox.getBoundingClientRect();
+      if (target.$el && this.sign) {
+        target.$el.scrollTop = scrollTop;
+        this.$emit(
+          "onScroll",
+          this.itemHeight,
+          tableBottom - bottom === 0,
+          tableTop - top === 0,
+          this.sign,
+        );
+      }
+    },
     setUpPositionForUncertainRowHeight: function(scrollTop, container) {
       const first = container.querySelector("tr:first-child");
       const last = container.querySelector("tr:last-child");
@@ -149,20 +175,20 @@ export default {
             height,
             transform: scrollTop,
           });
-          this.setTransform({
-            cache: this.scrollTopCache,
-            scrollTop,
-            multiple: Math.ceil((containerTop - firstBottom) / this.height),
-          });
         }
+        this.setTransform({
+          cache: this.scrollTopCache,
+          scrollTop,
+          multiple: Math.ceil((containerTop - firstBottom) / this.height),
+        });
       } else if (this.scrollTop > scrollTop) {
-        if (containerBottom <= lastTop) {
-          this.setTransform({
-            cache: this.scrollTopCache,
-            scrollTop,
-            extr: -1,
-          });
-        }
+        // if (containerBottom <= lastTop) {
+        this.setTransform({
+          cache: this.scrollTopCache,
+          scrollTop,
+          extr: -1,
+        });
+        // }
       }
       this.scrollTop = scrollTop;
     },
@@ -180,7 +206,6 @@ export default {
           transform += c.height;
         });
         this.transform = `translate3d(0,${transform}px,0)`;
-        console.log(transform, scrollTop);
         this.start = start;
         this.end = this.start + this.visibleCount * Math.max(multiple, 1);
       }

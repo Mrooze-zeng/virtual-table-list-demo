@@ -2,6 +2,8 @@
   <div id="app" ref="app">
     <cn-table
       ref="cnTable"
+      :height="500"
+      :width="800"
       :dataSource="dataSource"
       :columns="columns"
       @boundaryTop="handleBoundaryTop"
