@@ -148,6 +148,7 @@ export default {
             name: faker.name.findName(),
             zip: faker.address.zipCode(),
             age: faker.datatype.number(100),
+            description: faker.lorem.sentence(),
             address: faker.address.streetAddress(),
           });
         }
@@ -160,7 +161,7 @@ export default {
       setTimeout(function() {
         self.dataSource = [
           ...dataSource,
-          ...self.createDataSource({ isUseDefaultDataSource: true }),
+          ...self.createDataSource({ isUseDefaultDataSource: false }),
         ];
         self.isLoading = false;
       }, 1000);
@@ -247,6 +248,11 @@ export default {
           title: "邮编",
           key: "zip",
           width: 100,
+        },
+        {
+          title: "说明",
+          key: "description",
+          width: 200,
         },
         {
           title: "操作",
