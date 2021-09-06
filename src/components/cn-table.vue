@@ -107,17 +107,14 @@ export default {
     },
   },
   methods: {
-    handleTableScroll: _.throttle(
-      function(offset = 0, el, itemHeight = 0) {
-        const fixedBody = this.$refs["fixedBody"].$el;
-        const cnTableBody = this.$refs["cnTableBody"].$el;
-        this.setBoundaryEmitter(offset, el, itemHeight);
-        fixedBody.scrollTop = offset;
-        cnTableBody.scrollTop = offset;
-      },
-      0,
-      { leading: true },
-    ),
+    handleTableScroll: function(offset = 0, el, itemHeight = 0) {
+      const fixedBody = this.$refs["fixedBody"].$el;
+      const cnTableBody = this.$refs["cnTableBody"].$el;
+      this.setBoundaryEmitter(offset, el, itemHeight);
+      fixedBody.scrollTop = offset;
+      cnTableBody.scrollTop = offset;
+    },
+
     setBoundaryEmitter: _.debounce(function(offset = 0, el, itemHeight) {
       if (offset === 0) {
         this.$emit("boundaryTop");
