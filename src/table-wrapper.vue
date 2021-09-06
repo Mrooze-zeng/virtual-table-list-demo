@@ -3,6 +3,7 @@
     <slot></slot>
     <cn-table
       ref="cnTable"
+      :mod="mod"
       :height="500"
       :width="800"
       :rowHeight="rowHeight"
@@ -106,6 +107,10 @@ export default {
       type: Number,
       default: 0,
     },
+    mod: {
+      type: Number,
+      default: 0,
+    },
   },
   data() {
     return {
@@ -135,7 +140,7 @@ export default {
     },
     handleBoundaryBottom: function() {
       console.log("reach bottom");
-      // this.fetchData();
+      this.fetchData();
     },
     createDataSource: function({ size = 100, isUseDefaultDataSource = false }) {
       let dataSource = [];

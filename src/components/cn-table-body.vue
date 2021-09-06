@@ -50,6 +50,10 @@ import _ from "underscore";
 export default {
   name: "cn-table-body",
   props: {
+    mod: {
+      type: Number,
+      default: 0,
+    },
     height: {
       type: Number,
       default: 0,
@@ -123,10 +127,22 @@ export default {
         ); //修正高度
 
         if (!this.rowHeight) {
-          this.setUpPositionForUncertainRowHeight(scrollTop, event.target);
+          switch (this.mod) {
+            case 1:
+              this.setPositionForUncertainRowHeightWithCache(
+                scrollTop,
+                event.target,
+              );
+              break;
+            case 2:
+              this.setPositionForUncertainRowHeightWithHeap(
+                scrollTop,
+                event.target,
+              );
+              break;
+          }
         } else {
           this.setUpPositionWithBuf(scrollTop, this.visibleCount);
-          // this.setUpPositionNormal(scrollTop);
         }
 
         this.syncScroll(scrollTop, event.target);
@@ -134,6 +150,9 @@ export default {
       0,
       { leading: true },
     ),
+    isMaxCount: function(end = this.end) {
+      return Math.min(end, this.dataSource.length) === this.dataSource.length;
+    },
     setCurrentTarget: function(event) {
       if (event.type === "mouseenter") {
         this.sign = event.target.dataset.sign;
@@ -146,10 +165,93 @@ export default {
 
       if (target.$el && this.sign) {
         target.$el.scrollTop = scrollTop;
-        this.$emit("onScroll", scrollTop, el);
+        this.$emit("onScroll", scrollTop, el, this.isMaxCount());
       }
     },
-    setUpPositionForUncertainRowHeight: function(scrollTop, container) {
+    setPositionForUncertainRowHeightWithHeap: function(
+      scrollTop = 0,
+      container,
+    ) {
+      if (scrollTop <= 0) {
+        this.clearCache();
+      }
+      this.setScrollTopCacheHeap({
+        scrollTop,
+        container,
+        isRollingDown: this.scrollTop <= scrollTop,
+      });
+      this.setTransform2();
+
+      this.scrollTop = scrollTop;
+    },
+    setScrollTopCacheHeap: function({
+      scrollTop = 0,
+      container,
+      bufSize = this.height / 2,
+      isRollingDown = true,
+    }) {
+      const {
+        top: containerTop,
+        bottom: containerBottom,
+      } = container.getBoundingClientRect();
+      let first = container.querySelector(`tr:first-child`);
+      let last = container.querySelector(`tr:last-child`);
+      const {
+        height: firstHeight,
+        top: firstTop,
+      } = first.getBoundingClientRect();
+      const { top: lastTop } = last.getBoundingClientRect();
+
+      if (isRollingDown) {
+        this.cachePush(firstTop, containerTop, bufSize, first, firstHeight);
+      } else {
+        this.cachePop(lastTop, containerBottom, bufSize, scrollTop);
+      }
+    },
+    cachePush: function(firstTop, containerTop, bufSize, first, firstHeight) {
+      let cache = this.scrollTopCache;
+      let start = Math.max(0, this.start);
+      if (firstTop + bufSize <= containerTop) {
+        let isHas = cache.findIndex((i) => i.id === first.id);
+        if (isHas < 0 && !this.isMaxCount(this.end - 1)) {
+          this.scrollTopCache.push({
+            id: first.id,
+            start,
+            height: firstHeight,
+          });
+        }
+      }
+    },
+    cachePop: function(lastTop, containerBottom, bufSize, scrollTop) {
+      if (containerBottom <= lastTop - bufSize) {
+        this.scrollTopCache.pop();
+      }
+      const cache = this.scrollTopCache;
+      let totalHeight = bufSize;
+      for (let i = 0; i < cache.length; i++) {
+        totalHeight += cache[i].height;
+        if (scrollTop <= totalHeight) {
+          this.scrollTopCache = cache.slice(0, i);
+          break;
+        }
+      }
+    },
+    setTransform2: function() {
+      let transform = 0;
+      const cache = this.scrollTopCache;
+      this.start = cache.length;
+      cache.slice(0, this.start).forEach((i) => {
+        transform += i.height;
+      });
+      this.transform = `translate3d(0,${transform}px,0)`;
+      this.end = this.start + this.visibleCount * 2;
+    },
+
+    //
+    setPositionForUncertainRowHeightWithCache: function(
+      scrollTop = 0,
+      container,
+    ) {
       const first = container.querySelector("tr:first-child");
       const { top: containerTop } = container.getBoundingClientRect();
       const {
@@ -219,18 +321,9 @@ export default {
     },
     setUpPositionWithBuf: function(scrollTop, bufSize) {
       let start = Math.floor(scrollTop / this.itemHeight);
-      let transform = 0;
       this.start = Math.max(start - bufSize, 0);
-      transform = this.itemHeight * this.start;
-      this.transform = `translate3d(0,${transform}px,0)`;
       this.end = start + this.visibleCount + bufSize;
-    },
-    setUpPositionNormal: function(scrollTop) {
-      let start = Math.floor(scrollTop / this.itemHeight);
-      let transform = start * this.itemHeight;
-      this.start = start;
-      this.end = start + this.visibleCount;
-      this.transform = `translate3d(0,${transform}px,0)`;
+      this.transform = `translate3d(0,${this.itemHeight * this.start}px,0)`;
     },
     getTrHeight: function(target) {
       let heights = [60];

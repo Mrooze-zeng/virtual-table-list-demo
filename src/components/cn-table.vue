@@ -19,6 +19,7 @@
       </cn-table-header>
       <cn-table-body
         v-if="dataSource.length"
+        :mod="mod"
         :height="tableBodyHeight"
         :rowHeight="rowHeight"
         :columns="sortFixedColumns"
@@ -44,6 +45,7 @@
       </cn-table-header>
       <cn-table-body
         v-if="dataSource.length"
+        :mod="mod"
         :height="tableBodyHeight"
         :rowHeight="rowHeight"
         :columns="sortFixedColumns"
@@ -76,6 +78,10 @@ export default {
     CnTableBody,
   },
   props: {
+    mod: {
+      type: Number,
+      default: 0,
+    },
     dataSource: {
       type: Array,
       default: function() {
@@ -115,20 +121,23 @@ export default {
     },
   },
   methods: {
-    //_.debounce(
-    handleTableScroll: function(scrollTop, container) {
+    handleTableScroll: _.debounce(function(
+      scrollTop = 0,
+      container,
+      isMaxCount = false,
+    ) {
       const { bottom } = container.getBoundingClientRect();
       const table = container.querySelector("table");
       const { bottom: tableBottom } = table.getBoundingClientRect();
       if (scrollTop === 0) {
         this.$emit("boundaryTop");
       }
-      if (tableBottom - bottom === 0) {
+      if (tableBottom - bottom === 0 && isMaxCount) {
         this.$emit("boundaryBottom");
         this.calculateTableBodyHeight();
       }
     },
-    //50),
+    50),
     handleBodyScrollLeft: _.throttle(
       function(event) {
         this.setStaticWidth(this.$refs["leftStaticTable"]);
