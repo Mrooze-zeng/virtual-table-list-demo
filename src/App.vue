@@ -125,7 +125,7 @@ export default {
     },
     handleBoundaryBottom: function() {
       console.log("reach bottom");
-      // this.fetchData();
+      this.fetchData();
     },
     createDataSource: function({ size = 100, isUseDefaultDataSource = false }) {
       let dataSource = [];
@@ -271,7 +271,7 @@ export default {
   },
   mounted() {
     this.createColumns();
-    this.fetchData();
+    // this.fetchData();
   },
   created() {},
 };

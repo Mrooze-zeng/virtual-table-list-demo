@@ -8,7 +8,7 @@
     <div
       class="cn-table-body-phantom"
       ref="phantom"
-      :style="{ 'min-height': phantomHeight }"
+      :style="{ height: phantomHeight }"
     ></div>
     <table :style="{ transform: transform }" ref="tablebox">
       <colgroup>
@@ -85,7 +85,7 @@ export default {
       );
     },
     phantomHeight: function() {
-      return Math.ceil((this.dataSource.length / 2) * this.itemHeight) + "px";
+      return Math.ceil(this.dataSource.length * this.itemHeight) + "px";
     },
   },
   watch: {
@@ -149,16 +149,29 @@ export default {
             height,
             transform: scrollTop,
           });
-          this.setTransform(this.scrollTopCache, scrollTop);
+          this.setTransform({
+            cache: this.scrollTopCache,
+            scrollTop,
+            multiple: Math.ceil((containerTop - firstBottom) / this.height),
+          });
         }
       } else if (this.scrollTop > scrollTop) {
         if (containerBottom <= lastTop) {
-          this.setTransform(this.scrollTopCache, scrollTop, -1);
+          this.setTransform({
+            cache: this.scrollTopCache,
+            scrollTop,
+            extr: -1,
+          });
         }
       }
       this.scrollTop = scrollTop;
     },
-    setTransform: function(cache = [], scrollTop = 0, extr = 1) {
+    setTransform: function({
+      cache = [],
+      scrollTop = 0,
+      extr = 1,
+      multiple = 1,
+    }) {
       const item = cache.find((i) => i.scrollTop >= scrollTop);
       if (item) {
         let transform = 0;
@@ -167,8 +180,9 @@ export default {
           transform += c.height;
         });
         this.transform = `translate3d(0,${transform}px,0)`;
+        console.log(transform, scrollTop);
         this.start = start;
-        this.end = this.start + this.visibleCount;
+        this.end = this.start + this.visibleCount * Math.max(multiple, 1);
       }
     },
     addCache: function(cache = {}) {
@@ -234,7 +248,7 @@ export default {
 }
 .cn-table-body table {
   will-change: transform;
-  transition: all 0s linear;
+  /* transition: all 0s linear; */
   /* pointer-events: none; */
   transform: translate3d(0, 0, 0);
 }
