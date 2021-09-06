@@ -19,8 +19,15 @@
       </colgroup>
       <tbody>
         <tr v-for="(row, i) in visibleData" :key="i" :id="row.id">
-          <td v-for="col in columns" :key="col.key">
-            <div class="td-container">
+          <td
+            v-for="col in columns"
+            :key="col.key"
+            :class="{ uncertainRowHeight: !rowHeight }"
+          >
+            <div
+              :class="{ 'td-container': rowHeight }"
+              :style="rowHeight > 0 ? { height: rowHeight + 'px' } : {}"
+            >
               <slot
                 v-if="col.body"
                 name="body"
@@ -63,13 +70,13 @@ export default {
       type: Function,
       default: function() {},
     },
-    currentSign: {
-      type: String,
-      default: "",
-    },
     target: {
       type: String,
       default: "",
+    },
+    rowHeight: {
+      type: Number,
+      default: 0,
     },
   },
   data() {
@@ -115,12 +122,14 @@ export default {
           this.getTrHeight(event.target),
         ); //修正高度
 
-        this.syncScroll(scrollTop);
+        if (!this.rowHeight) {
+          this.setUpPositionForUncertainRowHeight(scrollTop, event.target);
+        } else {
+          this.setUpPositionWithBuf(scrollTop, this.visibleCount);
+          // this.setUpPositionNormal(scrollTop);
+        }
 
-        this.setUpPositionForUncertainRowHeight(scrollTop, event.target);
-
-        // this.setUpPositionWithBuf(scrollTop, this.visibleCount);
-        // this.setUpPositionNormal(scrollTop);
+        this.syncScroll(scrollTop, event.target);
       },
       0,
       { leading: true },
@@ -132,35 +141,22 @@ export default {
         this.sign = "";
       }
     },
-    syncScroll: function(scrollTop = 0) {
+    syncScroll: function(scrollTop = 0, el) {
       const target = this.$parent.$refs[this.target] || {};
-      const tablebox = this.$refs["tablebox"];
-      const container = this.$refs["cnTableBody"];
-      const { top, bottom } = container.getBoundingClientRect();
-      const {
-        bottom: tableBottom,
-        top: tableTop,
-      } = tablebox.getBoundingClientRect();
+
       if (target.$el && this.sign) {
         target.$el.scrollTop = scrollTop;
-        this.$emit(
-          "onScroll",
-          this.itemHeight,
-          tableBottom - bottom === 0,
-          tableTop - top === 0,
-          this.sign,
-        );
+        this.$emit("onScroll", scrollTop, el);
       }
     },
     setUpPositionForUncertainRowHeight: function(scrollTop, container) {
       const first = container.querySelector("tr:first-child");
-      const last = container.querySelector("tr:last-child");
+      const { top: containerTop } = container.getBoundingClientRect();
       const {
-        top: containerTop,
-        bottom: containerBottom,
-      } = container.getBoundingClientRect();
-      const { height, bottom: firstBottom } = first.getBoundingClientRect();
-      const { top: lastTop } = last.getBoundingClientRect();
+        height,
+        bottom: firstBottom,
+        top: firstTop,
+      } = first.getBoundingClientRect();
 
       if (scrollTop <= 0) {
         this.clearCache();
@@ -173,13 +169,12 @@ export default {
             id: first.id,
             start: this.start,
             height,
-            transform: scrollTop,
           });
         }
         this.setTransform({
           cache: this.scrollTopCache,
           scrollTop,
-          multiple: Math.ceil((containerTop - firstBottom) / this.height),
+          multiple: Math.ceil((containerTop - firstTop) / this.height),
         });
       } else if (this.scrollTop > scrollTop) {
         // if (containerBottom <= lastTop) {
@@ -198,6 +193,7 @@ export default {
       extr = 1,
       multiple = 1,
     }) {
+      //有问题
       const item = cache.find((i) => i.scrollTop >= scrollTop);
       if (item) {
         let transform = 0;
@@ -207,7 +203,7 @@ export default {
         });
         this.transform = `translate3d(0,${transform}px,0)`;
         this.start = start;
-        this.end = this.start + this.visibleCount * Math.max(multiple, 1);
+        this.end = start + this.visibleCount * Math.max(multiple, 1);
       }
     },
     addCache: function(cache = {}) {
@@ -224,12 +220,8 @@ export default {
     setUpPositionWithBuf: function(scrollTop, bufSize) {
       let start = Math.floor(scrollTop / this.itemHeight);
       let transform = 0;
-      if (start >= bufSize) {
-        this.start = start - bufSize;
-        transform = this.itemHeight * (start - bufSize);
-      } else {
-        this.start = 0;
-      }
+      this.start = Math.max(start - bufSize, 0);
+      transform = this.itemHeight * this.start;
       this.transform = `translate3d(0,${transform}px,0)`;
       this.end = start + this.visibleCount + bufSize;
     },
@@ -292,13 +284,15 @@ export default {
   height: calc(100% + 1px);
   visibility: hidden;
 }
-/* .td-container {
+table td.uncertainRowHeight {
+  padding: 8px 16px;
+}
+.td-container {
   box-sizing: border-box;
   padding: 8px 16px;
   width: 100%;
-  height: 35px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-} */
+}
 </style>

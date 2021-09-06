@@ -20,6 +20,7 @@
       <cn-table-body
         v-if="dataSource.length"
         :height="tableBodyHeight"
+        :rowHeight="rowHeight"
         :columns="sortFixedColumns"
         :dataSource="dataSource"
         @onScroll="handleTableScroll"
@@ -44,6 +45,7 @@
       <cn-table-body
         v-if="dataSource.length"
         :height="tableBodyHeight"
+        :rowHeight="rowHeight"
         :columns="sortFixedColumns"
         :dataSource="dataSource"
         @onScroll="handleTableScroll"
@@ -94,6 +96,10 @@ export default {
       type: Number,
       default: 300,
     },
+    rowHeight: {
+      type: Number,
+      default: 0,
+    },
   },
   data() {
     return {
@@ -109,19 +115,20 @@ export default {
     },
   },
   methods: {
-    handleTableScroll: _.debounce(function(
-      itemHeight = 0,
-      isOnBottom = false,
-      isOnTop = false,
-    ) {
-      if (isOnTop) {
+    //_.debounce(
+    handleTableScroll: function(scrollTop, container) {
+      const { bottom } = container.getBoundingClientRect();
+      const table = container.querySelector("table");
+      const { bottom: tableBottom } = table.getBoundingClientRect();
+      if (scrollTop === 0) {
         this.$emit("boundaryTop");
-      } else if (isOnBottom) {
+      }
+      if (tableBottom - bottom === 0) {
         this.$emit("boundaryBottom");
-        this.calculateTableBodyHeight(itemHeight);
+        this.calculateTableBodyHeight();
       }
     },
-    50),
+    //50),
     handleBodyScrollLeft: _.throttle(
       function(event) {
         this.setStaticWidth(this.$refs["leftStaticTable"]);
@@ -149,7 +156,7 @@ export default {
       });
       done(dom, total, headerStaticTable.scrollLeft);
     },
-    calculateTableBodyHeight: function(itemHeight = 0) {
+    calculateTableBodyHeight: function() {
       const { height } = this.$el.getBoundingClientRect();
       const header = this.$refs["cnTableHeader"].$el;
       let { height: headerHeight, top } = header.getBoundingClientRect();
@@ -198,9 +205,6 @@ table th {
   border: 1px solid #e9e9e9;
 }
 table th {
-  padding: 8px 16px;
-}
-table td {
   padding: 8px 16px;
 }
 
