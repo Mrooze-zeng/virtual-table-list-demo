@@ -128,14 +128,14 @@ export default {
 
         if (!this.rowHeight) {
           switch (this.mod) {
-            case 1:
-              this.setPositionForUncertainRowHeightWithCache(
+            case 0:
+              this.setPositionForUncertainRowHeightWithHeap(
                 scrollTop,
                 event.target,
               );
               break;
-            case 2:
-              this.setPositionForUncertainRowHeightWithHeap(
+            case 1:
+              this.setPositionForUncertainRowHeightWithCache(
                 scrollTop,
                 event.target,
               );

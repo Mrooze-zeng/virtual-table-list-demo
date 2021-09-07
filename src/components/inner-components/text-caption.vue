@@ -1,7 +1,7 @@
 <template>
-  <th class="caption">
+  <div class="caption" :style="caption.style">
     <span>{{ caption.text }}</span>
-  </th>
+  </div>
 </template>
 
 <script>
@@ -25,6 +25,7 @@ export default {
 </script>
 <style scoped>
 .caption {
+  padding: 8px 16px;
   border: none;
   overflow: hidden;
   text-overflow: ellipsis;

@@ -244,7 +244,8 @@ export default {
           },
           caption: {
             slot: "TextCaption",
-            text: "Bonus Items",
+            text: "Bonus 1",
+            colspan: 2,
           },
         },
         {
@@ -256,6 +257,12 @@ export default {
           title: "市区",
           key: "city",
           width: 200,
+          caption: {
+            slot: "TextCaption",
+            text: "Bonus 3",
+            colspan: 2,
+            style: "background-color:#8e929c;",
+          },
         },
         {
           title: "地址",

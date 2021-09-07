@@ -1,7 +1,5 @@
 <template>
-  <th>
-    <input type="text" @input="handleSearch" />
-  </th>
+  <input type="text" @input="handleSearch" />
 </template>
 
 <script>

@@ -1,9 +1,9 @@
 <template>
   <div id="app">
-    <v-table :mod="1" :rowHeight="46">
+    <v-table :rowHeight="46">
       <h1 class="title">with row height set</h1>
     </v-table>
-    <v-table :mod="2">
+    <v-table>
       <h1 class="title">with row height unset</h1>
     </v-table>
   </div>

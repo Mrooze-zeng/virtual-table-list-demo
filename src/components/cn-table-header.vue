@@ -4,25 +4,25 @@
       <col v-for="(col, i) in columns" :key="i" :width="col.width || ''" />
     </colgroup>
     <thead>
-      <tr v-if="withColumnCaption" class="cn-table-header-caption">
-        <template v-for="col in columns">
-          <template v-if="col.caption">
+      <tr v-if="withColumnCaption.length" class="cn-table-header-caption">
+        <template v-for="col in withColumnCaption">
+          <th
+            :key="col.name"
+            class="th-caption"
+            :class="{ 'fixed-th': col.fixed }"
+            :colspan="col.caption && col.caption.colspan"
+          >
             <slot
-              v-if="col.caption.slot"
+              v-if="col.caption && col.caption.slot"
               name="colcaption"
               v-bind:namekey="col.key"
               v-bind:caption="col.caption"
             ></slot>
-          </template>
-          <th v-else :key="col.name"></th>
+          </th>
         </template>
       </tr>
       <tr>
-        <th
-          v-for="col in columns"
-          :key="col.key"
-          :class="{ 'fixed-th': col.fixed }"
-        >
+        <th v-for="col in columns" :key="col.key">
           <slot v-if="col.header" name="header" v-bind:column="col"></slot>
           <span v-else>{{ col.title }}</span>
         </th>
@@ -43,12 +43,31 @@ export default {
   },
   computed: {
     withColumnCaption: function() {
-      return this.columns.some((col) => col.caption);
+      let columns = [...this.columns];
+      let hasCaption = columns.some((col) => col.caption);
+      let result = [];
+
+      this.columns.reduce((output, v, i, arr) => {
+        if (output >= i) {
+          // columns.splice(i, 1);
+          console.log(i);
+        } else {
+          if (v.caption && v.caption.colspan) {
+            output = i + v.caption.colspan - 1;
+            result.push(v);
+          } else {
+            if (output < i) {
+              output = i;
+              result.push(v);
+            }
+          }
+        }
+        return output;
+      }, -1);
+      return hasCaption ? result : [];
     },
   },
-  mounted() {
-    // console.log("header --------", this.$slots);
-  },
+  mounted() {},
 };
 </script>
 
@@ -56,5 +75,8 @@ export default {
 .cn-table-header-caption th {
   background: transparent;
   border: none;
+}
+.cn-table-header-caption th.th-caption {
+  padding: 0;
 }
 </style>
