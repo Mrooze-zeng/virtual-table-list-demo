@@ -41,7 +41,7 @@
           <div></div>
         </div>
       </template>
-      <template v-slot:empty="slotProps">
+      <template v-slot:empty>
         <div v-bind="slotProps">
           data empty
         </div>
