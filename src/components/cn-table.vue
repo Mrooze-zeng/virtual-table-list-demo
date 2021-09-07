@@ -125,15 +125,16 @@ export default {
       scrollTop = 0,
       container,
       isMaxCount = false,
+      count = 0,
     ) {
       const { bottom } = container.getBoundingClientRect();
       const table = container.querySelector("table");
       const { bottom: tableBottom } = table.getBoundingClientRect();
       if (scrollTop === 0) {
-        this.$emit("boundaryTop");
+        this.$emit("boundaryTop", count);
       }
-      if (tableBottom - bottom === 0 && isMaxCount) {
-        this.$emit("boundaryBottom");
+      if (tableBottom <= bottom && isMaxCount) {
+        this.$emit("boundaryBottom", count);
         this.calculateTableBodyHeight();
       }
     },

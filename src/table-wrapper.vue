@@ -135,14 +135,14 @@ export default {
     handleAction: function(action = function() {}, ...v) {
       return action.apply(this, v);
     },
-    handleBoundaryTop: function() {
+    handleBoundaryTop: function(count = 0) {
       console.log("reach top");
     },
-    handleBoundaryBottom: function() {
-      console.log("reach bottom");
-      this.fetchData();
+    handleBoundaryBottom: function(count = 0) {
+      console.log("reach bottom", count);
+      this.fetchData({ count });
     },
-    createDataSource: function({ size = 100, isUseDefaultDataSource = false }) {
+    createDataSource: function({ size = 2, isUseDefaultDataSource = false }) {
       let dataSource = [];
       let step = Math.ceil(this.dataSource.length / size);
       for (let i = 0; i < size; i++) {
@@ -170,13 +170,16 @@ export default {
       }
       return dataSource;
     },
-    fetchData: function() {
+    fetchData: function({ count }) {
       const dataSource = this.dataSource;
       const self = this;
       setTimeout(function() {
         self.dataSource = [
           ...dataSource,
-          ...self.createDataSource({ isUseDefaultDataSource: false }),
+          ...self.createDataSource({
+            size: count,
+            isUseDefaultDataSource: false,
+          }),
         ];
         self.isLoading = false;
       }, 1000);

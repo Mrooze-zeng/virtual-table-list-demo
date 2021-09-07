@@ -6,7 +6,7 @@
     @mouseenter="setCurrentTarget"
     @mouseleave="setCurrentTarget"
     ref="cnTableBody"
-    :style="{ height: TableBodyheight + 'px' }"
+    :style="{ 'max-height': TableBodyheight + 'px' }"
   >
     <div
       class="cn-table-body-phantom"
@@ -98,17 +98,17 @@ export default {
   },
   computed: {
     visibleData: function() {
-      if (this.visibleCount > this.dataSource.length) {
-        const dom = this.$refs["cnTableBody"];
-        dom.scrollTop = 0;
-      }
       return this.dataSource.slice(
         Math.max(this.start, 0),
         Math.min(this.end, this.dataSource.length),
       );
     },
     phantomHeight: function() {
-      return Math.ceil(this.visibleCount * this.itemHeight);
+      let size = Math.min(
+        this.end * this.itemHeight,
+        this.dataSource.length * this.itemHeight,
+      );
+      return Math.ceil(size) + 1;
     },
   },
   watch: {
@@ -151,7 +151,7 @@ export default {
       { leading: true },
     ),
     isMaxCount: function(end = this.end) {
-      return Math.min(end, this.dataSource.length) === this.dataSource.length;
+      return end >= this.dataSource.length;
     },
     setCurrentTarget: function(event) {
       if (event.type === "mouseenter") {
@@ -165,7 +165,13 @@ export default {
 
       if (target.$el && this.sign) {
         target.$el.scrollTop = scrollTop;
-        this.$emit("onScroll", scrollTop, el, this.isMaxCount());
+        this.$emit(
+          "onScroll",
+          scrollTop,
+          el,
+          this.isMaxCount(),
+          this.end - this.start,
+        );
       }
     },
     setPositionForUncertainRowHeightWithHeap: function(
@@ -321,8 +327,13 @@ export default {
     },
     setUpPositionWithBuf: function(scrollTop, bufSize) {
       let start = Math.floor(scrollTop / this.itemHeight);
+      let extr = 0;
+      if (start >= bufSize) {
+        bufSize -= 1;
+        extr += 1;
+      }
       this.start = Math.max(start - bufSize, 0);
-      this.end = start + this.visibleCount + bufSize;
+      this.end = this.start + this.visibleCount + bufSize + extr;
       this.transform = `translate3d(0,${this.itemHeight * this.start}px,0)`;
     },
     getTrHeight: function(target) {
