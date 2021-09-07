@@ -129,7 +129,7 @@ export default {
         if (!this.rowHeight) {
           switch (this.mod) {
             case 0:
-              this.setPositionForUncertainRowHeightWithHeap(
+              this.setPositionForUncertainRowHeightWithStack(
                 scrollTop,
                 event.target,
               );
@@ -174,14 +174,14 @@ export default {
         );
       }
     },
-    setPositionForUncertainRowHeightWithHeap: function(
+    setPositionForUncertainRowHeightWithStack: function(
       scrollTop = 0,
       container,
     ) {
       if (scrollTop <= 0) {
         this.clearCache();
       }
-      this.setScrollTopCacheHeap({
+      this.setScrollTopCacheStack({
         scrollTop,
         container,
         isRollingDown: this.scrollTop <= scrollTop,
@@ -190,7 +190,7 @@ export default {
 
       this.scrollTop = scrollTop;
     },
-    setScrollTopCacheHeap: function({
+    setScrollTopCacheStack: function({
       scrollTop = 0,
       container,
       bufSize = this.height / 2,
