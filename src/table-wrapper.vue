@@ -142,7 +142,7 @@ export default {
       console.log("reach bottom", count);
       this.fetchData({ count });
     },
-    createDataSource: function({ size = 2, isUseDefaultDataSource = false }) {
+    createDataSource: function({ size = 20, isUseDefaultDataSource = false }) {
       let dataSource = [];
       let step = Math.ceil(this.dataSource.length / size);
       for (let i = 0; i < size; i++) {
@@ -220,8 +220,7 @@ export default {
           caption: {
             slot: "SearchCaption",
             action: function(done = function() {}) {
-              const dataSource = this.createDataSource();
-              this.dataSource = dataSource.filter(done);
+              this.dataSource = this.dataSource.filter(done);
             },
           },
         },
